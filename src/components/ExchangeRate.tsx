@@ -1,53 +1,64 @@
 
-import React, { useState } from "react";
+import React from "react";
+import { Text, StyleSheet } from "react-native";
 import {
-  Page, Heading, Menu, Card, Detail,
-  Button, Info, ScreenProps
+  Page, Heading, Card, Menu,
+  Button, Info, ScreenProps, C
 } from "./EmeraldUI";
-import { useBank } from "./BankStore";
 
-const rates = [
-  { code: "USD", name: "АҚШ доллары", buy: 490, sell: 495 },
-  { code: "EUR", name: "Еуро", buy: 520, sell: 528 }
+const currencies = [
+  { icon: "🇺🇸", name: "АҚШ доллары", code: "USD" },
+  { icon: "🇪🇺", name: "Еуро", code: "EUR" },
+  { icon: "🇬🇧", name: "Фунт стерлинг", code: "GBP" },
+  { icon: "🇰🇿", name: "Қазақстан теңгесі", code: "KZT" }
 ];
 
 export default function ExchangeRate({
   onNavigate, onBack
 }: ScreenProps) {
-  const bank = useBank();
-  const [selected, setSelected] = useState("USD");
-  const current = rates.find(item => item.code === selected)!;
-
-  function exchange() {
-    bank.setCurrency(selected);
-    onNavigate("ExchangeEmpty");
-  }
-
   return (
-    <Page title="Валюта бағамдары" onBack={onBack}>
+    <Page title="Валюта бағамы" onBack={onBack}>
       <Heading
-        title="Валюта бағамдары"
-        subtitle="Айырбастауға арналған демонстрациялық бағамдар"
+        title="Валюта айырбастау"
+        subtitle="Валюталарды таңдап, айырбастау есебін жасаңыз."
       />
 
-      {rates.map(item => (
+      <Card dark>
+        <Text style={s.cardTitle}>Fiksik Exchange</Text>
+        <Text style={s.cardSubtitle}>
+          Валюталарға арналған ақпараттық бөлім
+        </Text>
+      </Card>
+
+      {currencies.map(item => (
         <Menu
           key={item.code}
-          icon={item.code === "USD" ? "🇺🇸" : "🇪🇺"}
-          title={`${item.code} — ${item.name}`}
-          subtitle={`Сатып алу: ${item.buy} ₸ | Сату: ${item.sell} ₸`}
-          onPress={() => setSelected(item.code)}
+          icon={item.icon}
+          title={item.name}
+          subtitle={item.code}
+          onPress={() => onNavigate("ExchangeEmpty")}
         />
       ))}
 
-      <Card>
-        <Detail label="Таңдалған валюта" value={current.code} />
-        <Detail label="Сатып алу" value={`${current.buy} ₸`} />
-        <Detail label="Сату" value={`${current.sell} ₸`} />
-      </Card>
+      <Button
+        title="Валюта айырбастау"
+        onPress={() => onNavigate("ExchangeEmpty")}
+      />
 
-      <Button title="Айырбастауға өту" onPress={exchange} />
-      <Info text="Бағамдар нақты уақыттан алынбайды. Қаржылық шешімге пайдаланбаңыз." />
+      <Info text="Нақты валюта бағамдары қосылмаған. Бұл экран нарықтағы ағымдағы бағамды көрсетпейді." />
     </Page>
   );
 }
+
+const s = StyleSheet.create({
+  cardTitle: {
+    fontSize: 23,
+    color: C.white,
+    fontWeight: "800",
+    marginBottom: 10
+  },
+  cardSubtitle: {
+    color: C.light,
+    fontSize: 13
+  }
+});

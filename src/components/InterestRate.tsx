@@ -1,49 +1,52 @@
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Page, Heading, Card, Detail,
-  Button, Info, ScreenProps
+  Menu, Button, Info, ScreenProps
 } from "./EmeraldUI";
 
 export default function InterestRate({
   onNavigate, onBack
 }: ScreenProps) {
-  const [type, setType] = useState<"deposit" | "loan">("deposit");
-
   return (
     <Page title="Пайыздық мөлшерлемелер" onBack={onBack}>
       <Heading
-        title="Банк өнімдері"
-        subtitle="Депозит пен несие мөлшерлемелерінің үлгілері"
+        title="Жинақ және несие"
+        subtitle="Банк өнімдерінің шарттарымен танысыңыз."
       />
 
-      <Button title="Депозиттер" onPress={() => setType("deposit")}
-        secondary={type !== "deposit"} />
-      <Button title="Несиелер" onPress={() => setType("loan")}
-        secondary={type !== "loan"} />
+      <Card>
+        <Detail label="Жинақ өнімі" value="Еркін жинақ" />
+        <Detail label="Мөлшерлеме" value="Нақты дерек қосылмаған" />
+        <Detail label="Валюта" value="KZT" />
+        <Detail label="Мерзім" value="Шартқа байланысты" />
+      </Card>
 
-      {type === "deposit" ? (
-        <Card>
-          <Detail label="Жинақ шоты" value="5,5%" />
-          <Detail label="Мерзімді депозит" value="7,2%" />
-          <Detail label="Мерзімі" value="12 айға дейін" />
-        </Card>
-      ) : (
-        <Card>
-          <Detail label="Тұтынушылық несие" value="12,5%" />
-          <Detail label="Ипотекалық несие" value="9,9%" />
-          <Detail label="Есептеу тәсілі" value="Жылдық" />
-        </Card>
-      )}
+      <Card>
+        <Detail label="Өнім" value="Мерзімді жинақ" />
+        <Detail label="Мөлшерлеме" value="Нақты дерек қосылмаған" />
+        <Detail label="Валюта" value="KZT" />
+      </Card>
 
-      {type === "deposit" && (
-        <Button
-          title="Депозиттерді қарау"
-          onPress={() => onNavigate("Deposits")}
-        />
-      )}
+      <Menu
+        icon="💰"
+        title="Жинақ ашу"
+        subtitle="Депозит түрлерін қарау"
+        onPress={() => onNavigate("SaveOnlineMenu")}
+      />
 
-      <Info text="Барлық пайыздық мөлшерлеме мысал үшін берілген. Нақты банк ұсынысы емес." />
+      <Menu
+        icon="💳"
+        title="Несие картасы"
+        onPress={() => onNavigate("CreditCardOverview")}
+      />
+
+      <Button
+        title="Депозиттер бөліміне өту"
+        onPress={() => onNavigate("Deposits")}
+      />
+
+      <Info text="Нақты пайыздық мөлшерлемелерді банк API-інен алу қажет." />
     </Page>
   );
 }

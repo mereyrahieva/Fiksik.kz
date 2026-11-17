@@ -1,9 +1,8 @@
 
-import React, { useState } from "react";
-import { Alert } from "react-native";
+import React from "react";
 import {
-  Page, Heading, Field, Button,
-  Card, Detail, Info, ScreenProps
+  Page, Heading, Card, Detail,
+  Success, Button, Info, ScreenProps
 } from "./EmeraldUI";
 import { useBank } from "./BankStore";
 
@@ -11,46 +10,38 @@ export default function SignUpFilled({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [email, setEmail] = useState("");
-
-  function complete() {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      Alert.alert("Қате", "Электрондық поштаны дұрыс енгізіңіз.");
-      return;
-    }
-    bank.setRegistered(true);
-    Alert.alert(
-      "Тіркелу аяқталды",
-      "Демо аккаунтыңыз дайын!",
-      [{ text: "Басты бетке өту", onPress: () => onNavigate("Home") }]
-    );
-  }
 
   return (
-    <Page title="Тіркелуді растау" onBack={onBack}>
+    <Page title="Тіркелу нәтижесі" onBack={onBack}>
+      <Success
+        title="Қош келдіңіз!"
+        subtitle="Сіздің демо аккаунтыңыз дайын."
+      />
+
       <Heading
-        title="Мәліметтеріңізді тексеріңіз"
-        subtitle="Аккаунтты ашу үшін ақпаратты растаңыз."
+        title="Жеке мәліметтеріңіз"
+        subtitle="Тіркелу барысында енгізілген ақпарат"
       />
 
       <Card>
         <Detail label="Аты-жөні" value={bank.name} />
-        <Detail label="Телефон нөмірі" value={bank.phone} />
-        <Detail label="Аккаунт" value="Жаңа пайдаланушы" />
+        <Detail label="Телефон" value={bank.phone} />
+        <Detail label="Email" value={bank.email} />
+        <Detail label="Мәртебе" value="Демо тіркелді" />
       </Card>
 
-      <Field
-        label="Электрондық пошта"
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Поштаңызды енгізіңіз"
-        keyboardType="email-address"
+      <Button
+        title="Басты бетке өту"
+        onPress={() => onNavigate("Home")}
       />
 
-      <Info text="Бұл оқу жобасы. Нақты банк аккаунты ашылмайды." />
+      <Button
+        title="Кіру экраны"
+        secondary
+        onPress={() => onNavigate("SignIn")}
+      />
 
-      <Button title="Тіркелуді аяқтау" onPress={complete} />
-      <Button title="Мәліметтерді түзету" secondary onPress={onBack} />
+      <Info text="Демо аккаунт қолданба жабылғанда қайта бастапқы күйіне келуі мүмкін." />
     </Page>
   );
 }

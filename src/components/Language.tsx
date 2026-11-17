@@ -2,48 +2,63 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
-  Page, Heading, Menu, Button,
-  Info, ScreenProps
+  Page, Heading, Menu, Card,
+  Detail, Button, Info, ScreenProps
 } from "./EmeraldUI";
 
-export default function Language({ onBack }: ScreenProps) {
+export default function Language({
+  onNavigate, onBack
+}: ScreenProps) {
   const [selected, setSelected] = useState("Қазақша");
-
-  const languages = [
-    { name: "Қазақша", icon: "🇰🇿" },
-    { name: "Орысша", icon: "🇷🇺" },
-    { name: "Ағылшынша", icon: "🇬🇧" }
-  ];
-
-  function save() {
-    if (selected !== "Қазақша") {
-      Alert.alert(
-        "Тіл қолжетімсіз",
-        "Әзірше қосымша тек қазақ тілінде жұмыс істейді."
-      );
-      return;
-    }
-    Alert.alert("Сақталды", "Қазақ тілі таңдалды.", [
-      { text: "Жарайды", onPress: onBack }
-    ]);
-  }
 
   return (
     <Page title="Тіл баптаулары" onBack={onBack}>
-      <Heading title="Қосымша тілі"
-        subtitle="Қолжетімді тіл: қазақша" />
+      <Heading
+        title="Қосымша тілі"
+        subtitle="Қолданба тілін таңдаңыз."
+      />
 
-      {languages.map(item => (
-        <Menu
-          key={item.name}
-          icon={item.icon}
-          title={`${item.name}${selected === item.name ? " ✓" : ""}`}
-          onPress={() => setSelected(item.name)}
-        />
-      ))}
+      <Menu
+        icon="🇰🇿"
+        title="Қазақша"
+        subtitle="Қолданыстағы тіл"
+        onPress={() => setSelected("Қазақша")}
+      />
 
-      <Button title="Сақтау" onPress={save} />
-      <Info text="Орысша және ағылшынша интерфейс әлі аударылмаған." />
+      <Menu
+        icon="🇷🇺"
+        title="Русский"
+        subtitle="Аударма әлі қосылмаған"
+        onPress={() => setSelected("Русский")}
+      />
+
+      <Menu
+        icon="🇬🇧"
+        title="English"
+        subtitle="Translation is not available yet"
+        onPress={() => setSelected("English")}
+      />
+
+      <Card>
+        <Detail label="Таңдалған тіл" value={selected} />
+      </Card>
+
+      <Button
+        title="Сақтау"
+        onPress={() => {
+          if (selected !== "Қазақша") {
+            Alert.alert(
+              "Әзірге қолжетімсіз",
+              "Қазіргі нұсқада барлық экран қазақ тілінде жасалған."
+            );
+            return;
+          }
+          Alert.alert("Сақталды", "Қолданба тілі: қазақша.");
+          onBack();
+        }}
+      />
+
+      <Info text="Орысша және ағылшынша интерфейстер толық аударылғаннан кейін қосылады." />
     </Page>
   );
 }

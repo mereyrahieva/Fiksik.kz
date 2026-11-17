@@ -1,20 +1,23 @@
 
 import React, { useState } from "react";
-import { TextInput, View, StyleSheet, Text } from "react-native";
 import {
-  Page, Heading, Menu, C, ScreenProps
+  Page, Heading, Field, Menu,
+  Info, ScreenProps
 } from "./EmeraldUI";
 
 const services = [
-  { title: "Ақша аудару", icon: "⇄", route: "TransferEmpty" },
-  { title: "Валюта айырбастау", icon: "💱", route: "ExchangeEmpty" },
-  { title: "Банк бөлімшелері", icon: "📍", route: "Branch" },
-  { title: "Пайыздық мөлшерлемелер", icon: "％", route: "InterestRate" },
-  { title: "Валюта бағамдары", icon: "📈", route: "ExchangeRate" },
-  { title: "Қосымша тілі", icon: "🌐", route: "Language" },
-  { title: "Карталар", icon: "💳", route: "Cards" },
-  { title: "Депозиттер", icon: "💰", route: "Deposits" },
-  { title: "Баптаулар", icon: "⚙️", route: "Settings" }
+  { title: "Ақша аудару", icon: "↗️", page: "TransferEmpty" },
+  { title: "Карталар", icon: "💳", page: "Cards" },
+  { title: "Менің шоттарым", icon: "🏦", page: "Accounts" },
+  { title: "Ұялы байланыс", icon: "📱", page: "MobileRechargeEmpty" },
+  { title: "Интернет төлемі", icon: "🌐", page: "InternetBillEmpty" },
+  { title: "Электр энергиясы", icon: "💡", page: "ElectricBillEmpty" },
+  { title: "Депозиттер", icon: "💰", page: "Deposits" },
+  { title: "Несие картасы", icon: "💳", page: "CreditCardOverview" },
+  { title: "Валюта бағамы", icon: "💱", page: "ExchangeRate" },
+  { title: "Филиалдар", icon: "📍", page: "Branch" },
+  { title: "Хабарламалар", icon: "💬", page: "Messages" },
+  { title: "Баптаулар", icon: "⚙️", page: "Settings" }
 ];
 
 export default function Search({
@@ -23,47 +26,35 @@ export default function Search({
   const [query, setQuery] = useState("");
 
   const results = services.filter(item =>
-    item.title.toLocaleLowerCase("kk")
-      .includes(query.toLocaleLowerCase("kk"))
+    item.title.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
-    <Page title="Қызметтерді іздеу" onBack={onBack}>
-      <Heading title="Қандай қызмет керек?"
-        subtitle="Банк қызметін атауы бойынша іздеңіз." />
+    <Page title="Іздеу" onBack={onBack}>
+      <Heading
+        title="Не іздейсіз?"
+        subtitle="Банк қызметтерін жылдам табыңыз."
+      />
 
-      <TextInput
-        style={s.input}
-        placeholder="Қызметті іздеу..."
-        placeholderTextColor="#98ADA3"
+      <Field
+        label="Қызмет атауы"
+        placeholder="Мысалы: Ақша аудару"
         value={query}
         onChangeText={setQuery}
       />
 
-      <View style={{ marginTop: 25 }}>
-        {results.map(item => (
-          <Menu
-            key={item.route}
-            icon={item.icon}
-            title={item.title}
-            onPress={() => onNavigate(item.route)}
-          />
-        ))}
+      {results.map(item => (
+        <Menu
+          key={item.page}
+          icon={item.icon}
+          title={item.title}
+          onPress={() => onNavigate(item.page)}
+        />
+      ))}
 
-        {results.length === 0 && (
-          <Text style={s.empty}>Қызмет табылмады.</Text>
-        )}
-      </View>
+      {results.length === 0 && (
+        <Info text="Іздеу нәтижесі табылмады. Басқа сөз енгізіп көріңіз." />
+      )}
     </Page>
   );
 }
-
-const s = StyleSheet.create({
-  input: {
-    backgroundColor: C.white,
-    height: 55, borderRadius: 14,
-    borderColor: C.border, borderWidth: 1,
-    paddingHorizontal: 16, color: C.text
-  },
-  empty: { textAlign: "center", marginTop: 30, color: C.muted }
-});

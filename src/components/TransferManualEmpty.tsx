@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
-  Page, Heading, Field, Button,
-  Info, ScreenProps
+  Page, Heading, Card, Detail, Field,
+  Button, Info, ScreenProps
 } from "./EmeraldUI";
 import { useBank } from "./BankStore";
 
@@ -11,60 +11,102 @@ export default function TransferManualEmpty({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [bankName, setBankName] = useState("");
   const [recipient, setRecipient] = useState("");
-  const [iban, setIban] = useState("");
+  const [card, setCard] = useState("");
   const [amount, setAmount] = useState("");
+  const [message, setMessage] = useState("");
 
-  function proceed() {
+  function continueTransfer() {
+    const cleanCard = card.replace(/\D/g, "");
     const sum = Number(amount.replace(",", "."));
-    const account = iban.replace(/\s/g, "").toUpperCase();
 
-    if (!bankName.trim() || !recipient.trim()) {
-      Alert.alert("Қате", "Банк пен алушының аты-жөнін енгізіңіз.");
+    if (recipient.trim().length < 2) {
+      Alert.alert("Қате", "Алушының аты-жөнін енгізіңіз.");
       return;
     }
-    if (!/^KZ\d{18}$/.test(account)) {
-      Alert.alert("Қате", "Үлгі IBAN нөмірі KZ және 18 саннан тұруы керек.");
+
+    if (cleanCard.length !== 16) {
+      Alert.alert("Қате", "Карта нөмірі 16 саннан тұруы керек.");
       return;
     }
-    if (!Number.isFinite(sum) || sum <= 0 || sum > bank.balance) {
-      Alert.alert("Қате", "Аударым сомасын немесе балансты тексеріңіз.");
+
+    if (!Number.isFinite(sum) || sum <= 0) {
+      Alert.alert("Қате", "Аударым сомасын дұрыс енгізіңіз.");
+      return;
+    }
+
+    if (sum > bank.balance) {
+      Alert.alert("Қате", "Шотыңызда қаражат жеткіліксіз.");
       return;
     }
 
     bank.setTransfer({
       recipient,
-      card: account,
+      card: cleanCard,
       amount: sum,
-      message: `Банк: ${bankName}`
+      message: message.trim() || "Картаға аударым"
     });
 
     onNavigate("TransferFilled");
   }
 
   return (
-    <Page title="Банк шотына аудару" onBack={onBack}>
+    <Page title="Картаға аудару" onBack={onBack}>
       <Heading
-        title="Банк деректемелері"
-        subtitle="Шот арқылы ақша аудару мәліметтерін толтырыңыз."
+        title="Жаңа аударым"
+        subtitle="Алушының деректерін енгізіңіз."
       />
 
-      <Field label="Алушының банкі" value={bankName}
-        onChangeText={setBankName} placeholder="Банк атауы" />
-      <Field label="Алушының аты-жөні" value={recipient}
-        onChangeText={setRecipient} placeholder="Аты-жөні" />
-      <Field label="IBAN шот нөмірі" value={iban}
-        onChangeText={setIban} placeholder="KZ..." />
-      <Field label="Аударым сомасы (₸)" value={amount}
-        onChangeText={setAmount} placeholder="0"
-        keyboardType="decimal-pad" />
+      <Card>
+        <Detail label="Ақша алынатын карта" value="•••• 4589" />
+        <Detail
+          label="Қолжетімді баланс"
+          value={`${bank.balance.toLocaleString("kk-KZ")} ₸`}
+        />
+      </Card>
 
-      <Button title="Аударымды жалғастыру" onPress={proceed} />
-      <Button title="Картаға аудару" secondary
-        onPress={() => onNavigate("TransferEmpty")} />
+      <Field
+        label="Алушының аты-жөні"
+        placeholder="Аты-жөні"
+        value={recipient}
+        onChangeText={setRecipient}
+      />
 
-      <Info text="Бұл IBAN тек қарапайым формат бойынша тексеріледі. Нақты банк шотын растау орындалмайды." />
+      <Field
+        label="Карта нөмірі"
+        placeholder="0000 0000 0000 0000"
+        value={card}
+        onChangeText={setCard}
+        keyboardType="number-pad"
+      />
+
+      <Field
+        label="Аударым сомасы (₸)"
+        placeholder="0"
+        value={amount}
+        onChangeText={setAmount}
+        keyboardType="decimal-pad"
+      />
+
+      <Field
+        label="Аударым мақсаты"
+        placeholder="Мысалы: Сыйлық"
+        value={message}
+        onChangeText={setMessage}
+      />
+
+      <Button
+        title="Аударымды жалғастыру"
+        onPress={continueTransfer}
+      />
+
+      <Button
+        title="Алушылар тізімі"
+        secondary
+        onPress={() => onNavigate("BeneficiaryDirectory")}
+      />
+
+      <Info text="Демо операция. Нақты банк картасына ақша жіберілмейді." />
     </Page>
   );
 }

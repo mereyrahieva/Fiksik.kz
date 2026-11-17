@@ -1,21 +1,24 @@
 
-import React from "react";
+import React, { ReactNode, useState } from "react";
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, StyleSheet,
-  KeyboardTypeOptions
+  ScrollView, StyleSheet, KeyboardTypeOptions,
+  StatusBar, Alert
 } from "react-native";
 
 export const C = {
-  dark: "#065F46",
-  green: "#047857",
-  bright: "#10B981",
+  green: "#059669",
+  dark: "#064E3B",
+  deep: "#022C22",
   light: "#D1FAE5",
-  bg: "#F3FAF7",
+  mint: "#ECFDF5",
   white: "#FFFFFF",
-  text: "#193B30",
-  muted: "#71847C",
-  border: "#D8EAE0"
+  bg: "#F4FAF7",
+  text: "#102C25",
+  gray: "#71847D",
+  border: "#DCEBE4",
+  red: "#DC2626",
+  gold: "#FBBF24"
 };
 
 export type ScreenProps = {
@@ -24,27 +27,28 @@ export type ScreenProps = {
 };
 
 export function Page({
-  title, onBack, children, home = false
+  title, onBack, children
 }: {
   title: string;
   onBack?: () => void;
-  children: React.ReactNode;
-  home?: boolean;
+  children: ReactNode;
 }) {
   return (
-    <View style={s.page}>
+    <View style={s.root}>
+      <StatusBar barStyle="dark-content" backgroundColor={C.bg} />
       <View style={s.header}>
-        {!home && onBack && (
-          <TouchableOpacity onPress={onBack} style={s.backBtn}>
-            <Text style={s.back}>‹</Text>
+        {onBack && (
+          <TouchableOpacity style={s.back} onPress={onBack}>
+            <Text style={s.backText}>‹</Text>
           </TouchableOpacity>
         )}
         <Text style={s.headerTitle}>{title}</Text>
-        <Text style={s.headerLogo}>✦</Text>
+        <View style={{ width: 36 }} />
       </View>
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={s.body}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={s.content}
       >
         {children}
       </ScrollView>
@@ -59,39 +63,22 @@ export function Heading({
   subtitle?: string;
 }) {
   return (
-    <View style={{ marginBottom: 22 }}>
-      <Text style={s.title}>{title}</Text>
-      {subtitle && <Text style={s.subtitle}>{subtitle}</Text>}
+    <View style={{ marginBottom: 24 }}>
+      <Text style={s.heading}>{title}</Text>
+      {!!subtitle && <Text style={s.subtitle}>{subtitle}</Text>}
     </View>
   );
 }
 
-export function Field({
-  label, value, onChangeText, placeholder,
-  keyboardType = "default", secureTextEntry = false,
-  multiline = false
+export function Card({
+  children, dark = false
 }: {
-  label: string;
-  value: string;
-  onChangeText: (v: string) => void;
-  placeholder?: string;
-  keyboardType?: KeyboardTypeOptions;
-  secureTextEntry?: boolean;
-  multiline?: boolean;
+  children: ReactNode;
+  dark?: boolean;
 }) {
   return (
-    <View style={{ marginBottom: 17 }}>
-      <Text style={s.label}>{label}</Text>
-      <TextInput
-        style={[s.input, multiline && { height: 100, textAlignVertical: "top" }]}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor="#9CAFA6"
-        keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}
-        multiline={multiline}
-      />
+    <View style={[s.card, dark && s.darkCard]}>
+      {children}
     </View>
   );
 }
@@ -106,31 +93,61 @@ export function Button({
 }) {
   return (
     <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
       activeOpacity={0.8}
+      disabled={disabled}
+      onPress={onPress}
       style={[
         s.button,
-        secondary && s.secondary,
+        secondary && s.secondaryButton,
         disabled && { opacity: 0.45 }
       ]}
     >
-      <Text style={[s.buttonText, secondary && s.secondaryText]}>
-        {title}
-      </Text>
+      <Text style={[
+        s.buttonText,
+        secondary && { color: C.green }
+      ]}>{title}</Text>
     </TouchableOpacity>
   );
 }
 
-export function Card({
-  children, dark = false
+export function Field({
+  label, value, onChangeText, placeholder,
+  keyboardType = "default", secureTextEntry = false
 }: {
-  children: React.ReactNode;
-  dark?: boolean;
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  keyboardType?: KeyboardTypeOptions;
+  secureTextEntry?: boolean;
 }) {
+  const [visible, setVisible] = useState(false);
+
   return (
-    <View style={[s.card, dark && s.darkCard]}>
-      {children}
+    <View style={{ marginBottom: 17 }}>
+      <Text style={s.fieldLabel}>{label}</Text>
+      <View style={s.inputWrap}>
+        <TextInput
+          style={s.input}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#94A79E"
+          keyboardType={keyboardType}
+          secureTextEntry={secureTextEntry && !visible}
+          autoCapitalize="none"
+        />
+        {secureTextEntry && (
+          <TouchableOpacity
+            onPress={() => setVisible(!visible)}
+            style={{ padding: 8 }}
+          >
+            <Text style={{ color: C.green }}>
+              {visible ? "Жасыру" : "Көрсету"}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
@@ -158,13 +175,15 @@ export function Menu({
   onPress: () => void;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} style={s.menu}>
-      <View style={s.menuIcon}><Text style={{ fontSize: 22 }}>{icon}</Text></View>
+    <TouchableOpacity style={s.menu} onPress={onPress}>
+      <View style={s.menuIcon}>
+        <Text style={{ fontSize: 23 }}>{icon}</Text>
+      </View>
       <View style={{ flex: 1 }}>
         <Text style={s.menuTitle}>{title}</Text>
-        {subtitle && <Text style={s.menuSubtitle}>{subtitle}</Text>}
+        {!!subtitle && <Text style={s.menuSubtitle}>{subtitle}</Text>}
       </View>
-      <Text style={s.arrow}>›</Text>
+      <Text style={{ fontSize: 23, color: C.gray }}>›</Text>
     </TouchableOpacity>
   );
 }
@@ -172,130 +191,358 @@ export function Menu({
 export function Info({ text }: { text: string }) {
   return (
     <View style={s.info}>
-      <Text style={s.infoText}>{text}</Text>
+      <Text style={s.infoText}>ⓘ  {text}</Text>
     </View>
   );
 }
 
 export function Check({
-  value, onPress, title
+  title, value, onPress
 }: {
+  title: string;
   value: boolean;
   onPress: () => void;
-  title: string;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} style={s.checkRow}>
-      <Text style={s.check}>{value ? "☑" : "□"}</Text>
-      <Text style={s.checkText}>{title}</Text>
+    <TouchableOpacity style={s.checkRow} onPress={onPress}>
+      <View style={[s.checkbox, value && s.checked]}>
+        {value && <Text style={{ color: "white" }}>✓</Text>}
+      </View>
+      <Text style={{ flex: 1, color: C.text }}>{title}</Text>
     </TouchableOpacity>
   );
 }
 
-export function Success({ title, subtitle }: {
+export function Success({
+  title, subtitle
+}: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
 }) {
   return (
     <View style={s.success}>
-      <View style={s.successCircle}><Text style={s.tick}>✓</Text></View>
+      <View style={s.successIcon}>
+        <Text style={{ fontSize: 45, color: C.white }}>✓</Text>
+      </View>
       <Text style={s.successTitle}>{title}</Text>
-      <Text style={s.subtitle}>{subtitle}</Text>
+      {!!subtitle && <Text style={s.subtitle}>{subtitle}</Text>}
     </View>
   );
 }
 
-export const common = StyleSheet.create({
-  section: {
-    fontSize: 17, fontWeight: "700",
-    color: C.text, marginTop: 24, marginBottom: 14
-  },
-  muted: { color: C.muted, fontSize: 13 },
-  amount: { fontSize: 28, fontWeight: "800", color: C.dark },
-  link: { color: C.green, fontWeight: "700" },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
+export function SectionTitle({ title }: { title: string }) {
+  return <Text style={s.sectionTitle}>{title}</Text>;
+}
+
+export function QuickActions({
+  items
+}: {
+  items: { icon: string; title: string; onPress: () => void }[];
+}) {
+  return (
+    <View style={s.actions}>
+      {items.map((item, index) => (
+        <TouchableOpacity
+          key={index}
+          style={s.action}
+          onPress={item.onPress}
+        >
+          <View style={s.actionIcon}>
+            <Text style={{ fontSize: 26 }}>{item.icon}</Text>
+          </View>
+          <Text style={s.actionTitle}>{item.title}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+export function BottomNav({
+  onNavigate,
+  active = "Home"
+}: {
+  onNavigate: (name: string) => void;
+  active?: string;
+}) {
+  const tabs = [
+    { id: "Home", icon: "⌂", title: "Басты бет" },
+    { id: "TransferEmpty", icon: "⇄", title: "Аударым" },
+    { id: "Bills", icon: "▦", title: "Төлемдер" },
+    { id: "Cards", icon: "▣", title: "Карталар" },
+    { id: "Settings", icon: "⚙", title: "Баптаулар" }
+  ];
+
+  return (
+    <View style={s.nav}>
+      {tabs.map(tab => (
+        <TouchableOpacity
+          key={tab.id}
+          style={s.navItem}
+          onPress={() => onNavigate(tab.id)}
+        >
+          <Text style={{
+            fontSize: 23,
+            color: active === tab.id ? C.green : C.gray
+          }}>{tab.icon}</Text>
+          <Text style={{
+            fontSize: 9,
+            marginTop: 4,
+            color: active === tab.id ? C.green : C.gray,
+            fontWeight: active === tab.id ? "800" : "400"
+          }}>{tab.title}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+export const money = (amount: number) =>
+  `${amount.toLocaleString("kk-KZ")} ₸`;
+
+export function validateAmount(
+  text: string,
+  balance: number
+): number | null {
+  const amount = Number(text.replace(",", ".").trim());
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    Alert.alert("Қате", "Дұрыс сома енгізіңіз.");
+    return null;
   }
-});
+
+  if (amount > balance) {
+    Alert.alert("Қаражат жеткіліксіз", "Шот балансын тексеріңіз.");
+    return null;
+  }
+
+  return amount;
+}
 
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: C.bg },
+  root: { flex: 1, backgroundColor: C.bg },
   header: {
-    backgroundColor: C.dark,
-    minHeight: 86,
-    paddingHorizontal: 21,
+    height: 62,
     flexDirection: "row",
     alignItems: "center",
-    borderBottomLeftRadius: 23,
-    borderBottomRightRadius: 23
+    justifyContent: "space-between",
+    paddingHorizontal: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
+    backgroundColor: C.white
   },
-  backBtn: { paddingRight: 18, paddingVertical: 10 },
-  back: { fontSize: 33, color: C.white },
+  back: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: C.mint,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  backText: { fontSize: 29, color: C.dark, marginTop: -4 },
   headerTitle: {
-    color: C.white, fontSize: 20,
-    fontWeight: "800", flex: 1
+    fontSize: 17,
+    fontWeight: "800",
+    color: C.dark
   },
-  headerLogo: { color: "#A7F3D0", fontSize: 26 },
-  body: { padding: 21, paddingBottom: 55 },
-  title: { fontSize: 25, fontWeight: "800", color: C.dark },
-  subtitle: { fontSize: 13, color: C.muted, lineHeight: 21, marginTop: 9 },
-  label: { fontSize: 13, color: C.text, fontWeight: "600", marginBottom: 8 },
-  input: {
-    height: 53, borderWidth: 1, borderColor: C.border,
-    backgroundColor: C.white, borderRadius: 13,
-    paddingHorizontal: 15, color: C.text, fontSize: 15
+  content: { padding: 20, paddingBottom: 48 },
+  heading: {
+    fontSize: 27,
+    fontWeight: "900",
+    color: C.dark,
+    marginBottom: 7
+  },
+  subtitle: {
+    fontSize: 14,
+    color: C.gray,
+    lineHeight: 22
+  },
+  card: {
+    backgroundColor: C.white,
+    padding: 20,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: C.border,
+    marginBottom: 17
+  },
+  darkCard: {
+    backgroundColor: C.dark,
+    borderColor: C.dark
   },
   button: {
-    backgroundColor: C.green, paddingVertical: 17,
-    borderRadius: 13, alignItems: "center", marginTop: 14
+    backgroundColor: C.green,
+    borderRadius: 15,
+    height: 54,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12
   },
-  buttonText: { color: C.white, fontSize: 15, fontWeight: "700" },
-  secondary: { backgroundColor: C.white, borderWidth: 1, borderColor: C.green },
-  secondaryText: { color: C.dark },
-  card: {
-    backgroundColor: C.white, padding: 19,
-    borderRadius: 17, marginBottom: 13,
-    borderWidth: 1, borderColor: C.border
+  secondaryButton: {
+    backgroundColor: C.mint,
+    borderWidth: 1,
+    borderColor: "#B7E8D4"
   },
-  darkCard: { backgroundColor: C.dark, borderColor: C.dark },
+  buttonText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: C.white
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: C.dark,
+    marginBottom: 9
+  },
+  inputWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: C.white,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingHorizontal: 14,
+    minHeight: 55
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    color: C.text,
+    paddingVertical: 13
+  },
   detail: {
-    flexDirection: "row", justifyContent: "space-between",
-    alignItems: "center", paddingVertical: 13,
-    borderBottomWidth: 1, borderColor: C.border
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    borderBottomColor: C.border,
+    borderBottomWidth: 1,
+    paddingVertical: 13,
+    gap: 10
   },
-  detailLabel: { flex: 1, color: C.muted, fontSize: 12 },
-  detailValue: { color: C.text, fontWeight: "700", fontSize: 13 },
+  detailLabel: { color: C.gray, fontSize: 13, flex: 1 },
+  detailValue: {
+    color: C.dark,
+    fontSize: 14,
+    fontWeight: "700",
+    flex: 1,
+    textAlign: "right"
+  },
   menu: {
-    backgroundColor: C.white, flexDirection: "row",
-    alignItems: "center", padding: 14, borderRadius: 14,
-    marginBottom: 10, borderWidth: 1, borderColor: C.border
+    backgroundColor: C.white,
+    borderWidth: 1,
+    borderColor: C.border,
+    borderRadius: 18,
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 11,
+    gap: 12
   },
   menuIcon: {
-    height: 45, width: 45, backgroundColor: C.light,
-    borderRadius: 13, alignItems: "center", justifyContent: "center",
-    marginRight: 12
+    width: 49,
+    height: 49,
+    borderRadius: 15,
+    backgroundColor: C.mint,
+    alignItems: "center",
+    justifyContent: "center"
   },
-  menuTitle: { color: C.text, fontSize: 14, fontWeight: "700" },
-  menuSubtitle: { color: C.muted, fontSize: 11, marginTop: 5 },
-  arrow: { fontSize: 27, color: C.green },
+  menuTitle: {
+    color: C.dark,
+    fontSize: 15,
+    fontWeight: "800"
+  },
+  menuSubtitle: {
+    color: C.gray,
+    fontSize: 12,
+    marginTop: 5
+  },
   info: {
-    backgroundColor: C.light, padding: 15,
-    borderRadius: 13, marginVertical: 14
+    backgroundColor: "#E9F8F0",
+    padding: 14,
+    borderRadius: 14,
+    marginVertical: 10
   },
-  infoText: { color: C.dark, fontSize: 12, lineHeight: 20 },
-  checkRow: { flexDirection: "row", alignItems: "center", marginVertical: 13 },
-  check: { color: C.green, fontSize: 25, marginRight: 11 },
-  checkText: { color: C.text, fontSize: 13, flex: 1 },
-  success: { alignItems: "center", paddingVertical: 45 },
-  successCircle: {
-    width: 120, height: 120, borderRadius: 60,
-    backgroundColor: C.light, justifyContent: "center", alignItems: "center"
+  infoText: { color: C.dark, lineHeight: 20, fontSize: 12 },
+  checkRow: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+    marginVertical: 17
   },
-  tick: { color: C.green, fontSize: 76, fontWeight: "800" },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: C.green,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  checked: { backgroundColor: C.green },
+  success: {
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 30
+  },
+  successIcon: {
+    height: 105,
+    width: 105,
+    borderRadius: 55,
+    backgroundColor: C.green,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 22
+  },
   successTitle: {
-    fontSize: 23, color: C.dark, fontWeight: "800",
-    textAlign: "center", marginTop: 26
+    fontSize: 25,
+    color: C.dark,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 10
+  },
+  sectionTitle: {
+    color: C.dark,
+    fontSize: 18,
+    fontWeight: "800",
+    marginTop: 16,
+    marginBottom: 15
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    marginBottom: 15
+  },
+  action: {
+    width: "24%",
+    alignItems: "center",
+    marginVertical: 8
+  },
+  actionIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: C.mint,
+    marginBottom: 9
+  },
+  actionTitle: {
+    color: C.dark,
+    fontSize: 11,
+    textAlign: "center",
+    fontWeight: "600"
+  },
+  nav: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 14,
+    paddingBottom: 13,
+    borderTopWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.white
+  },
+  navItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center"
   }
 });

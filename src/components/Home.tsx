@@ -1,228 +1,343 @@
 
 import React, { useState } from "react";
 import {
-  View, Text, ScrollView,
-  TouchableOpacity, StyleSheet, Alert
+  View, Text, TouchableOpacity,
+  StyleSheet, Alert
 } from "react-native";
 import {
-  C, Menu, ScreenProps, common
+  Page, Card, Menu, SectionTitle,
+  QuickActions, BottomNav,
+  Button, C, money, ScreenProps
 } from "./EmeraldUI";
 import { useBank } from "./BankStore";
 
-const actions = [
-  { icon: "⇄", title: "Ақша аудару", route: "TransferEmpty" },
-  { icon: "💱", title: "Айырбастау", route: "ExchangeEmpty" },
-  { icon: "🏦", title: "Шоттар", route: "Accounts" },
-  { icon: "💳", title: "Карталар", route: "Cards" }
-];
-
-const transactions = [
-  { title: "Дүкендегі төлем", date: "Бүгін", amount: "-8 500 ₸" },
-  { title: "Шотты толықтыру", date: "Кеше", amount: "+50 000 ₸" },
-  { title: "Интернет төлемі", date: "12 қараша", amount: "-12 500 ₸" }
-];
-
 export default function Home({
-  onNavigate
+  onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [visible, setVisible] = useState(true);
+  const [showBalance, setShowBalance] = useState(true);
 
   return (
-    <View style={s.page}>
-      <ScrollView contentContainerStyle={s.content}>
-        <View style={s.top}>
-          <View style={common.row}>
-            <Text style={s.brand}>✦ Fiksik Bank</Text>
-            <TouchableOpacity onPress={() => onNavigate("Messages")}>
-              <Text style={s.bell}>♧</Text>
+    <View style={{ flex: 1, backgroundColor: C.bg }}>
+      <View style={{ flex: 1 }}>
+        <Page title="Fiksik Bank">
+          <View style={s.profile}>
+            <View style={s.avatar}>
+              <Text style={s.avatarText}>
+                {bank.name.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.hello}>Қайырлы күн!</Text>
+              <Text style={s.name}>{bank.name}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => onNavigate("Messages")}
+              style={s.headerIcon}
+            >
+              <Text style={{ fontSize: 24 }}>🔔</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onNavigate("Settings")}
+              style={s.headerIcon}
+            >
+              <Text style={{ fontSize: 24 }}>⚙️</Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={s.greeting}>Қайырлы күн, {bank.name}!</Text>
-          <Text style={s.welcome}>Қаржыңызды оңай басқарыңыз</Text>
-
-          <View style={s.bankCard}>
-            <View style={common.row}>
-              <Text style={s.cardLabel}>Жалпы баланс</Text>
-              <TouchableOpacity onPress={() => setVisible(!visible)}>
-                <Text style={s.show}>{visible ? "Жасыру" : "Көрсету"}</Text>
-              </TouchableOpacity>
+          <View style={s.balanceCard}>
+            <View style={s.cardTop}>
+              <Text style={s.cardBank}>✦ FIKSIK BANK</Text>
+              <Text style={s.cardType}>VISA</Text>
             </View>
 
-            <Text style={s.balance}>
-              {visible
-                ? `${bank.balance.toLocaleString("kk-KZ")} ₸`
-                : "•••••• ₸"}
-            </Text>
+            <Text style={s.balanceLabel}>Қолжетімді баланс</Text>
 
-            <View style={common.row}>
-              <Text style={s.cardLabel}>•••• •••• •••• 4589</Text>
-              <Text style={s.visa}>VISA</Text>
+            <TouchableOpacity onPress={() => setShowBalance(!showBalance)}>
+              <Text style={s.balance}>
+                {showBalance ? money(bank.balance) : "•••••• ₸"}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={s.cardBottom}>
+              <Text style={s.cardNumber}>
+                ••••  ••••  ••••  4589
+              </Text>
+              <Text style={s.cardHolder}>{bank.name.toUpperCase()}</Text>
             </View>
-          </View>
-        </View>
 
-        <View style={s.body}>
-          <Text style={common.section}>Жылдам қызметтер</Text>
-
-          <View style={s.actions}>
-            {actions.map(item => (
+            <View style={s.cardButtons}>
               <TouchableOpacity
-                key={item.title}
-                style={s.action}
-                onPress={() => onNavigate(item.route)}
+                style={s.cardButton}
+                onPress={() => onNavigate("Cards")}
               >
-                <View style={s.actionCircle}>
-                  <Text style={s.actionIcon}>{item.icon}</Text>
-                </View>
-                <Text style={s.actionTitle}>{item.title}</Text>
+                <Text style={s.cardButtonText}>Карталарым</Text>
               </TouchableOpacity>
-            ))}
+              <TouchableOpacity
+                style={s.cardButton}
+                onPress={() => onNavigate("Accounts")}
+              >
+                <Text style={s.cardButtonText}>Шоттарым</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <Text style={common.section}>Қызметтер</Text>
+          <SectionTitle title="Жылдам әрекеттер" />
 
-          <Menu icon="📱" title="Ұялы байланыс"
-            onPress={() => onNavigate("MobileTopUp")} />
-          <Menu icon="🧾" title="Коммуналдық төлемдер"
-            onPress={() => onNavigate("Bills")} />
-          <Menu icon="💰" title="Депозиттер"
-            onPress={() => onNavigate("Deposits")} />
-          <Menu icon="📈" title="Валюта бағамдары"
-            onPress={() => onNavigate("ExchangeRate")} />
-          <Menu icon="⚙️" title="Баптаулар"
-            onPress={() => onNavigate("Settings")} />
+          <QuickActions items={[
+            {
+              icon: "↗️",
+              title: "Аудару",
+              onPress: () => onNavigate("TransferEmpty")
+            },
+            {
+              icon: "💳",
+              title: "Карталар",
+              onPress: () => onNavigate("Cards")
+            },
+            {
+              icon: "📱",
+              title: "Телефон",
+              onPress: () => onNavigate("MobileRechargeEmpty")
+            },
+            {
+              icon: "💡",
+              title: "Төлемдер",
+              onPress: () => onNavigate("Bills")
+            }
+          ]} />
 
-          <View style={common.row}>
-            <Text style={common.section}>Соңғы операциялар</Text>
+          <SectionTitle title="Қызметтер" />
+
+          <View style={s.services}>
+            <TouchableOpacity
+              style={s.service}
+              onPress={() => onNavigate("Deposits")}
+            >
+              <Text style={s.serviceEmoji}>💰</Text>
+              <Text style={s.serviceTitle}>Депозит</Text>
+              <Text style={s.serviceDesc}>Ақша жинақтау</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={s.service}
+              onPress={() => onNavigate("CreditCardOverview")}
+            >
+              <Text style={s.serviceEmoji}>💳</Text>
+              <Text style={s.serviceTitle}>Несие картасы</Text>
+              <Text style={s.serviceDesc}>Лимит пен төлем</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={s.service}
+              onPress={() => onNavigate("ExchangeRate")}
+            >
+              <Text style={s.serviceEmoji}>💱</Text>
+              <Text style={s.serviceTitle}>Валюта</Text>
+              <Text style={s.serviceDesc}>Айырбастау</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={s.service}
+              onPress={() => onNavigate("Branch")}
+            >
+              <Text style={s.serviceEmoji}>📍</Text>
+              <Text style={s.serviceTitle}>Филиалдар</Text>
+              <Text style={s.serviceDesc}>Бөлімшелер</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={s.sectionRow}>
+            <SectionTitle title="Соңғы операциялар" />
             <TouchableOpacity
               onPress={() => onNavigate("TransactionReportList")}
             >
-              <Text style={common.link}>Барлығы</Text>
+              <Text style={s.link}>Барлығы ›</Text>
             </TouchableOpacity>
           </View>
 
-          {transactions.map(item => (
-            <TouchableOpacity
-              style={s.transaction}
-              key={item.title}
-              onPress={() => Alert.alert(
-                item.title,
-                `${item.date}\n${item.amount}\n\nДемо операция`
-              )}
-            >
-              <View style={s.txIcon}>
-                <Text style={{ color: C.green, fontSize: 20 }}>⇄</Text>
+          {bank.transactions.slice(0, 4).map(item => (
+            <View key={item.id} style={s.transaction}>
+              <View style={s.transactionIcon}>
+                <Text style={{ fontSize: 22 }}>
+                  {item.amount >= 0 ? "↓" : "↑"}
+                </Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={s.txTitle}>{item.title}</Text>
-                <Text style={s.txDate}>{item.date}</Text>
+                <Text style={s.transactionTitle}>{item.title}</Text>
+                <Text style={s.transactionDate}>{item.date}</Text>
               </View>
-              <Text style={s.txAmount}>{item.amount}</Text>
-            </TouchableOpacity>
+              <Text style={[
+                s.transactionAmount,
+                { color: item.amount >= 0 ? C.green : C.dark }
+              ]}>
+                {item.amount > 0 ? "+" : ""}
+                {money(item.amount)}
+              </Text>
+            </View>
           ))}
-        </View>
-      </ScrollView>
 
-      <View style={s.bottomNav}>
-        {[
-          { icon: "⌂", title: "Басты бет", route: "Home" },
-          { icon: "⇄", title: "Аударым", route: "TransferEmpty" },
-          { icon: "▣", title: "Карталар", route: "Cards" },
-          { icon: "⚙", title: "Баптаулар", route: "Settings" }
-        ].map((item, index) => (
-          <TouchableOpacity
-            key={item.title}
-            style={s.navItem}
-            onPress={() => onNavigate(item.route)}
-          >
-            <Text style={[
-              s.navIcon,
-              index === 0 && { color: C.green }
-            ]}>
-              {item.icon}
-            </Text>
-            <Text style={[
-              s.navText,
-              index === 0 && { color: C.green }
-            ]}>
-              {item.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
+          <Button
+            title="Операциялар тарихы"
+            secondary
+            onPress={() => onNavigate("TransactionReportList")}
+          />
+
+          <SectionTitle title="Басқа мүмкіндіктер" />
+
+          <Menu icon="📊" title="Шығындар статистикасы"
+            onPress={() => onNavigate("TransactionReportChart")} />
+          <Menu icon="🔎" title="Іздеу"
+            onPress={() => onNavigate("Search")} />
+          <Menu icon="💬" title="Хабарламалар"
+            onPress={() => onNavigate("Messages")} />
+        </Page>
       </View>
+
+      <BottomNav onNavigate={onNavigate} active="Home" />
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: C.bg },
-  content: { paddingBottom: 35 },
-  top: {
-    backgroundColor: C.dark,
-    paddingHorizontal: 21,
-    paddingTop: 30,
-    paddingBottom: 28,
-    borderBottomLeftRadius: 27,
-    borderBottomRightRadius: 27
-  },
-  brand: { color: "#FFF", fontSize: 20, fontWeight: "800" },
-  bell: { color: "#FFF", fontSize: 29 },
-  greeting: { color: "#A7F3D0", marginTop: 27, fontSize: 13 },
-  welcome: {
-    color: "#FFF", fontSize: 22,
-    fontWeight: "800", marginTop: 7
-  },
-  bankCard: {
-    backgroundColor: C.green,
-    padding: 21, borderRadius: 20,
-    marginTop: 24, minHeight: 170,
-    justifyContent: "space-between"
-  },
-  cardLabel: { color: "#D1FAE5", fontSize: 12 },
-  show: { color: "#FFF", fontSize: 12, fontWeight: "700" },
-  balance: {
-    color: "#FFF", fontSize: 29,
-    fontWeight: "800", marginVertical: 17
-  },
-  visa: { color: "#FFF", fontSize: 19, fontWeight: "800" },
-  body: { paddingHorizontal: 20 },
-  actions: {
+  profile: {
     flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+    gap: 11
+  },
+  avatar: {
+    width: 49, height: 49,
+    borderRadius: 16,
+    backgroundColor: C.light,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  avatarText: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: C.dark
+  },
+  hello: { color: C.gray, fontSize: 12 },
+  name: { color: C.dark, fontSize: 19, fontWeight: "800" },
+  headerIcon: { padding: 7 },
+  balanceCard: {
+    backgroundColor: C.dark,
+    borderRadius: 25,
+    padding: 23,
+    marginBottom: 15
+  },
+  cardTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 32
+  },
+  cardBank: {
+    color: C.white,
+    fontSize: 16,
+    fontWeight: "900"
+  },
+  cardType: {
+    color: C.white,
+    fontSize: 22,
+    fontWeight: "900",
+    fontStyle: "italic"
+  },
+  balanceLabel: { color: C.light, fontSize: 13 },
+  balance: {
+    color: C.white,
+    fontSize: 32,
+    fontWeight: "900",
+    marginTop: 8,
+    marginBottom: 30
+  },
+  cardBottom: { gap: 8 },
+  cardNumber: {
+    color: C.light,
+    fontSize: 16,
+    letterSpacing: 2
+  },
+  cardHolder: {
+    color: C.white,
+    fontSize: 11,
+    letterSpacing: 1
+  },
+  cardButtons: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 25
+  },
+  cardButton: {
+    flex: 1,
+    borderRadius: 12,
+    padding: 13,
+    alignItems: "center",
+    backgroundColor: "#16745A"
+  },
+  cardButtonText: { color: C.white, fontWeight: "800" },
+  services: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 12
+  },
+  service: {
+    width: "48%",
+    backgroundColor: C.white,
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: C.border
+  },
+  serviceEmoji: { fontSize: 30, marginBottom: 12 },
+  serviceTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: C.dark
+  },
+  serviceDesc: {
+    fontSize: 12,
+    color: C.gray,
+    marginTop: 5
+  },
+  sectionRow: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between"
   },
-  action: { width: "24%", alignItems: "center" },
-  actionCircle: {
-    width: 59, height: 59,
-    borderRadius: 17, backgroundColor: C.light,
-    justifyContent: "center", alignItems: "center"
-  },
-  actionIcon: { color: C.green, fontSize: 27 },
-  actionTitle: {
-    color: C.text, fontSize: 11,
-    marginTop: 9, textAlign: "center"
+  link: {
+    color: C.green,
+    fontWeight: "700"
   },
   transaction: {
-    flexDirection: "row", alignItems: "center",
-    backgroundColor: C.white, padding: 13,
-    marginBottom: 9, borderRadius: 14
-  },
-  txIcon: {
-    width: 42, height: 42, borderRadius: 12,
-    backgroundColor: C.light, alignItems: "center",
-    justifyContent: "center", marginRight: 12
-  },
-  txTitle: { color: C.text, fontWeight: "700", fontSize: 13 },
-  txDate: { color: C.muted, fontSize: 11, marginTop: 5 },
-  txAmount: { color: C.dark, fontWeight: "700", fontSize: 12 },
-  bottomNav: {
-    backgroundColor: C.white,
     flexDirection: "row",
-    paddingTop: 10, paddingBottom: 15,
-    borderTopWidth: 1, borderColor: C.border
+    alignItems: "center",
+    backgroundColor: C.white,
+    borderRadius: 16,
+    padding: 15,
+    marginBottom: 10,
+    gap: 12
   },
-  navItem: { flex: 1, alignItems: "center" },
-  navIcon: { fontSize: 24, color: "#91A39A" },
-  navText: { fontSize: 10, color: "#91A39A", marginTop: 4 }
+  transactionIcon: {
+    backgroundColor: C.mint,
+    width: 43,
+    height: 43,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  transactionTitle: {
+    color: C.dark,
+    fontWeight: "800",
+    fontSize: 13
+  },
+  transactionDate: {
+    color: C.gray,
+    marginTop: 4,
+    fontSize: 11
+  },
+  transactionAmount: {
+    fontSize: 13,
+    fontWeight: "800"
+  }
 });

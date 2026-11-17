@@ -1,51 +1,43 @@
 
 import React, { useState } from "react";
-import { Text } from "react-native";
 import {
-  Page, Heading, Menu, Button,
-  Card, Detail, Info, ScreenProps
+  Page, Heading, Menu, Card,
+  Detail, Button, ScreenProps
 } from "./EmeraldUI";
-import { useBank } from "./BankStore";
-
-const currencies = [
-  { code: "USD", name: "АҚШ доллары", icon: "🇺🇸" },
-  { code: "EUR", name: "Еуро", icon: "🇪🇺" }
-];
 
 export default function ExchangeCurrencyModal({
-  onBack
+  onNavigate, onBack
 }: ScreenProps) {
-  const bank = useBank();
-  const [selected, setSelected] = useState(bank.currency);
-
-  function save() {
-    bank.setCurrency(selected);
-    onBack();
-  }
+  const [selected, setSelected] = useState("USD");
 
   return (
     <Page title="Валютаны таңдау" onBack={onBack}>
       <Heading
-        title="Қажетті валютаны таңдаңыз"
-        subtitle="Қай валютаны айырбастағыңыз келеді?"
+        title="Айырбастау валютасы"
+        subtitle="Қажетті валютаны таңдаңыз."
       />
 
-      {currencies.map(item => (
-        <Menu
-          key={item.code}
-          icon={item.icon}
-          title={item.name}
-          subtitle={`${item.code}${selected === item.code ? " — таңдалды" : ""}`}
-          onPress={() => setSelected(item.code)}
-        />
-      ))}
+      <Menu icon="🇺🇸" title="АҚШ доллары"
+        subtitle="USD"
+        onPress={() => setSelected("USD")} />
+
+      <Menu icon="🇪🇺" title="Еуро"
+        subtitle="EUR"
+        onPress={() => setSelected("EUR")} />
+
+      <Menu icon="🇬🇧" title="Фунт стерлинг"
+        subtitle="GBP"
+        onPress={() => setSelected("GBP")} />
 
       <Card>
         <Detail label="Таңдалған валюта" value={selected} />
+        <Detail label="Негізгі валюта" value="KZT" />
       </Card>
 
-      <Button title="Таңдауды сақтау" onPress={save} />
-      <Info text="Қазір USD және EUR валюталарының демо бағамдары қолжетімді." />
+      <Button
+        title="Айырбастау формасына оралу"
+        onPress={() => onNavigate("ExchangeEmpty")}
+      />
     </Page>
   );
 }

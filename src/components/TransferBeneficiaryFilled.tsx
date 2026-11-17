@@ -8,9 +8,9 @@ import {
 import { useBank } from "./BankStore";
 
 const recipients = [
-  { name: "Бірінші алушы", card: "4532123412345678" },
-  { name: "Екінші алушы", card: "4111111111111111" },
-  { name: "Үшінші алушы", card: "5555444433332222" }
+  { name: "Бірінші алушы", card: "4111111111115678" },
+  { name: "Екінші алушы", card: "4111111111119012" },
+  { name: "Үшінші алушы", card: "4111111111113456" }
 ];
 
 export default function TransferBeneficiaryFilled({
@@ -19,46 +19,51 @@ export default function TransferBeneficiaryFilled({
   const bank = useBank();
   const [selected, setSelected] = useState(0);
   const [amount, setAmount] = useState("");
-  const recipient = recipients[selected];
+  const [message, setMessage] = useState("");
 
   function proceed() {
     const sum = Number(amount.replace(",", "."));
 
     if (!Number.isFinite(sum) || sum <= 0 || sum > bank.balance) {
-      Alert.alert("Қате", "Аударым сомасын дұрыс енгізіңіз.");
+      Alert.alert("Қате", "Аударым сомасын тексеріңіз.");
       return;
     }
 
+    const person = recipients[selected];
+
     bank.setTransfer({
-      recipient: recipient.name,
-      card: recipient.card,
+      recipient: person.name,
+      card: person.card,
       amount: sum,
-      message: "Сақталған алушыға аударым"
+      message: message.trim() || "Сақталған алушыға аударым"
     });
 
     onNavigate("TransferFilled");
   }
 
   return (
-    <Page title="Сақталған алушылар" onBack={onBack}>
+    <Page title="Сақталған алушы" onBack={onBack}>
       <Heading
         title="Алушыны таңдаңыз"
-        subtitle="Бұрын сақталған алушылардың біріне ақша аударыңыз."
+        subtitle="Қажетті адамды таңдап, аударым жасаңыз."
       />
 
-      {recipients.map((item, index) => (
+      {recipients.map((person, index) => (
         <Menu
-          key={item.card}
+          key={person.card}
           icon={selected === index ? "✅" : "👤"}
-          title={item.name}
-          subtitle={`Карта: •••• ${item.card.slice(-4)}`}
+          title={person.name}
+          subtitle={`•••• ${person.card.slice(-4)}`}
           onPress={() => setSelected(index)}
         />
       ))}
 
       <Card>
-        <Detail label="Таңдалған алушы" value={recipient.name} />
-        <Detail label="Карта" value={`•••• ${recipient.card.slice(-4)}`} />
+        <Detail label="Таңдалған алушы" value={recipients[selected].name} />
+        <Detail
+          label="Қолжетімді баланс"
+          value={`${bank.balance.toLocaleString("kk-KZ")} ₸`}
+        />
       </Card>
 
       <Field
@@ -69,14 +74,16 @@ export default function TransferBeneficiaryFilled({
         keyboardType="decimal-pad"
       />
 
-      <Button title="Аударымды жалғастыру" onPress={proceed} />
-      <Button
-        title="Жаңа алушыға аудару"
-        secondary
-        onPress={() => onNavigate("TransferEmpty")}
+      <Field
+        label="Хабарлама"
+        value={message}
+        onChangeText={setMessage}
+        placeholder="Аударым мақсаты"
       />
 
-      <Info text="Алушылар демонстрациялық. Нақты карта шоттары қолданылмайды." />
+      <Button title="Жалғастыру" onPress={proceed} />
+
+      <Info text="Алушылар үлгі ретінде берілген. Нақты ақша аударылмайды." />
     </Page>
   );
 }

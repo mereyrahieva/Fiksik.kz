@@ -1,52 +1,67 @@
 
 import React, { useState } from "react";
-import { Text, Alert } from "react-native";
+import { Alert } from "react-native";
 import {
   Page, Heading, Field, Menu,
-  Info, ScreenProps
+  Card, Detail, Button, Info, ScreenProps
 } from "./EmeraldUI";
 
-const branches = [
-  { name: "Алматы бөлімшесі", city: "Алматы", address: "Үлгі мекенжай №1" },
-  { name: "Астана бөлімшесі", city: "Астана", address: "Үлгі мекенжай №2" },
-  { name: "Шымкент бөлімшесі", city: "Шымкент", address: "Үлгі мекенжай №3" }
+const demoBranches = [
+  { city: "Алматы", address: "Демо бөлімше — Алматы" },
+  { city: "Астана", address: "Демо бөлімше — Астана" },
+  { city: "Шымкент", address: "Демо бөлімше — Шымкент" }
 ];
 
-export default function Branch({ onBack }: ScreenProps) {
+export default function Branch({
+  onNavigate, onBack
+}: ScreenProps) {
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState("");
 
-  const results = branches.filter(item =>
-    `${item.name} ${item.city}`
-      .toLocaleLowerCase("kk")
-      .includes(query.toLocaleLowerCase("kk"))
+  const branches = demoBranches.filter(item =>
+    item.city.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
-    <Page title="Банк бөлімшелері" onBack={onBack}>
+    <Page title="Филиалдар" onBack={onBack}>
       <Heading
-        title="Бөлімшені табу"
-        subtitle="Қала атауын енгізіп, бөлімшелерді қараңыз."
+        title="Банк бөлімшелері"
+        subtitle="Қала бойынша бөлімшелерді іздеңіз."
       />
 
-      <Field label="Қала" value={query}
-        onChangeText={setQuery} placeholder="Қала атауы" />
+      <Field
+        label="Қала"
+        placeholder="Қала атауын енгізіңіз"
+        value={query}
+        onChangeText={setQuery}
+      />
 
-      {results.map(item => (
+      {branches.map(item => (
         <Menu
-          key={item.name}
+          key={item.city}
           icon="📍"
-          title={item.name}
+          title={item.city}
           subtitle={item.address}
-          onPress={() => Alert.alert(
-            item.name,
-            `Қала: ${item.city}\nМекенжай: ${item.address}\n\nБұл нақты бөлімше емес.`
-          )}
+          onPress={() => setSelected(item.city)}
         />
       ))}
 
-      {results.length === 0 && <Text>Бөлімше табылмады.</Text>}
+      {!!selected && (
+        <Card>
+          <Detail label="Қала" value={selected} />
+          <Detail label="Мәртебе" value="Демо бөлімше" />
+        </Card>
+      )}
 
-      <Info text="Бұл тізім оқу жобасына арналған. Нақты филиалдардың мекенжайлары көрсетілмеген." />
+      <Button
+        title="Бөлімше туралы ақпарат"
+        onPress={() => Alert.alert(
+          "Ақпарат",
+          "Бұл тізімде нақты мекенжайлар мен жұмыс кестесі көрсетілмеген."
+        )}
+      />
+
+      <Info text="Филиалдар үлгі ретінде берілген. Нақты бөлімшелер мен картаны көрсету үшін банк дереккөзі қажет." />
     </Page>
   );
 }

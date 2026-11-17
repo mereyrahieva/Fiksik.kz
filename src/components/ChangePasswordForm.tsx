@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
-  Page, Heading, Field, Button,
-  Info, ScreenProps
+  Page, Heading, Field,
+  Button, Info, ScreenProps
 } from "./EmeraldUI";
 
 export default function ChangePasswordForm({
@@ -11,17 +11,17 @@ export default function ChangePasswordForm({
 }: ScreenProps) {
   const [password, setPassword] = useState("");
   const [repeat, setRepeat] = useState("");
-  const [visible, setVisible] = useState(false);
 
   function save() {
-    if (password.length < 8) {
-      Alert.alert("Қате", "Құпиясөз кемінде 8 таңба болуы керек.");
+    if (password.length < 6) {
+      Alert.alert("Қате", "Құпиясөз кемінде 6 таңба болсын.");
       return;
     }
     if (password !== repeat) {
       Alert.alert("Қате", "Құпиясөздер сәйкес келмейді.");
       return;
     }
+
     onNavigate("ChangePasswordSuccess");
   }
 
@@ -29,34 +29,28 @@ export default function ChangePasswordForm({
     <Page title="Құпиясөзді өзгерту" onBack={onBack}>
       <Heading
         title="Жаңа құпиясөз"
-        subtitle="Аккаунтыңызға жаңа құпиясөз орнатыңыз."
+        subtitle="Жаңа құпиясөзді екі рет енгізіңіз."
       />
 
       <Field
         label="Жаңа құпиясөз"
-        placeholder="Кемінде 8 таңба"
+        placeholder="Жаңа құпиясөз"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry={!visible}
+        secureTextEntry
       />
 
       <Field
         label="Құпиясөзді қайталау"
-        placeholder="Құпиясөзді қайта енгізіңіз"
+        placeholder="Қайта енгізіңіз"
         value={repeat}
         onChangeText={setRepeat}
-        secureTextEntry={!visible}
+        secureTextEntry
       />
 
-      <Button
-        title={visible ? "Құпиясөзді жасыру" : "Құпиясөзді көрсету"}
-        secondary
-        onPress={() => setVisible(!visible)}
-      />
+      <Button title="Құпиясөзді өзгерту" onPress={save} />
 
-      <Info text="Бұл демо режим. Құпиясөз нақты серверде өзгермейді." />
-
-      <Button title="Құпиясөзді сақтау" onPress={save} />
+      <Info text="Құпиясөз демо режимінде тексеріледі; серверде жаңартылмайды." />
     </Page>
   );
 }

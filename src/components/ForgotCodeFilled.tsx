@@ -1,8 +1,8 @@
 
 import React from "react";
 import {
-  Page, Success, Button,
-  ScreenProps
+  Page, Success, Card, Detail,
+  Button, ScreenProps
 } from "./EmeraldUI";
 
 export default function ForgotCodeFilled({
@@ -11,15 +11,20 @@ export default function ForgotCodeFilled({
   return (
     <Page title="Растау нәтижесі" onBack={onBack}>
       <Success
-        title="Телефон расталды!"
+        title="Код расталды!"
         subtitle="Енді жаңа құпиясөз орната аласыз."
       />
+
+      <Card>
+        <Detail label="Тексеру" value="SMS-код" />
+        <Detail label="Нәтиже" value="Сәтті" />
+        <Detail label="Келесі қадам" value="Жаңа құпиясөз" />
+      </Card>
 
       <Button
         title="Жаңа құпиясөз орнату"
         onPress={() => onNavigate("ChangePasswordForm")}
       />
-      <Button title="Артқа қайту" secondary onPress={onBack} />
     </Page>
   );
 }
