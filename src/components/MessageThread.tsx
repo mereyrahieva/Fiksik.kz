@@ -2,59 +2,32 @@
 import React from "react";
 import { Text } from "react-native";
 import {
-  Page, Heading, Card, Button,
-  Info, ScreenProps, C
-} from "../EmeraldUI";
+  Page, Heading, Card, Detail,
+  Button, ScreenProps, C
+} from "./EmeraldUI";
 
 export default function MessageThread({
   onNavigate, onBack
 }: ScreenProps) {
   return (
-    <Page title="Хабарламаны оқу" onBack={onBack}>
-      <Heading
-        title="Қауіпсіздік туралы ақпарат"
-        subtitle="Банк хабарламасының үлгісі"
-      />
-
+    <Page title="Хабарлама" onBack={onBack}>
+      <Heading title="Fiksik Bank қолдау қызметі"
+        subtitle="Ақпараттық хабарламалар" />
       <Card>
-        <Text style={{
-          color: C.dark,
-          fontWeight: "700",
-          fontSize: 16,
-          marginBottom: 15
-        }}>
-          Құрметті пайдаланушы!
-        </Text>
-
-        <Text style={{
-          color: C.text,
-          fontSize: 14,
-          lineHeight: 24
-        }}>
-          Аккаунтыңыздың қауіпсіздігіне назар аударыңыз.
-          {"\n\n"}
-          Құпиясөзіңізді ешкімге бермеңіз.
-          {"\n\n"}
-          SMS-кодтарды бөтен адамдарға айтпаңыз.
-          {"\n\n"}
-          Белгісіз сілтемелерді ашпаңыз.
-          {"\n\n"}
-          Көмек қажет болса, қолдау қызметіне хабарласыңыз.
+        <Detail label="Жіберуші" value="Fiksik Bank" />
+        <Detail label="Түрі" value="Жүйелік хабарлама" />
+      </Card>
+      <Card>
+        <Text style={{ color: C.dark, lineHeight: 23 }}>
+          Сәлеметсіз бе! Fiksik Bank мобильді қосымшасының
+          демонстрациялық нұсқасына қош келдіңіз.
+          Мұнда карталарды, төлемдерді және аударымдарды көре аласыз.
         </Text>
       </Card>
-
-      <Button
-        title="Жауап жазу"
-        onPress={() => onNavigate("MessageReply")}
-      />
-
-      <Button
-        title="Хабарламаларға оралу"
-        secondary
-        onPress={onBack}
-      />
-
-      <Info text="Бұл нақты банктен келген хабарлама емес." />
+      <Button title="Жауап жазу"
+        onPress={() => onNavigate("MessageReply")} />
+      <Button title="Барлық хабарламалар" secondary
+        onPress={() => onNavigate("Messages")} />
     </Page>
   );
 }

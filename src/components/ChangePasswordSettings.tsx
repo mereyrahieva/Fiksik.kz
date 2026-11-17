@@ -4,79 +4,40 @@ import { Alert } from "react-native";
 import {
   Page, Heading, Field, Button,
   Info, ScreenProps
-} from "../EmeraldUI";
+} from "./EmeraldUI";
 
 export default function ChangePasswordSettings({
   onNavigate, onBack
 }: ScreenProps) {
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [repeat, setRepeat] = useState("");
-  const [visible, setVisible] = useState(false);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
 
-  function save() {
-    if (!oldPassword.trim()) {
-      Alert.alert("Қате", "Ағымдағы құпиясөзді енгізіңіз.");
+  function change() {
+    if (current.length < 6 || next.length < 6) {
+      Alert.alert("Қате", "Құпиясөз кемінде 6 таңба болуы керек.");
       return;
     }
-
-    if (newPassword.length < 8) {
-      Alert.alert("Қате", "Жаңа құпиясөз кемінде 8 таңба болуы керек.");
+    if (next !== confirm) {
+      Alert.alert("Қате", "Жаңа құпиясөздер сәйкес келмейді.");
       return;
     }
-
-    if (newPassword !== repeat) {
-      Alert.alert("Қате", "Құпиясөздер сәйкес келмейді.");
-      return;
-    }
-
-    Alert.alert(
-      "Демо тексеру",
-      "Құпиясөз формасы тексерілді. Нақты аккаунтта өзгеріс жасалмады.",
-      [{ text: "Баптаулар", onPress: () => onNavigate("Settings") }]
-    );
+    Alert.alert("Демо", "Құпиясөз форматы тексерілді. Нақты өзгеріс жасалған жоқ.",
+      [{ text: "Түсінікті", onPress: () => onNavigate("Settings") }]);
   }
 
   return (
-    <Page title="Құпиясөзді өзгерту" onBack={onBack}>
-      <Heading
-        title="Қауіпсіздік"
-        subtitle="Құпиясөзді жаңарту"
-      />
-
-      <Field
-        label="Ағымдағы құпиясөз"
-        value={oldPassword}
-        onChangeText={setOldPassword}
-        secureTextEntry={!visible}
-        placeholder="Құпиясөз"
-      />
-
-      <Field
-        label="Жаңа құпиясөз"
-        value={newPassword}
-        onChangeText={setNewPassword}
-        secureTextEntry={!visible}
-        placeholder="Жаңа құпиясөз"
-      />
-
-      <Field
-        label="Құпиясөзді қайталау"
-        value={repeat}
-        onChangeText={setRepeat}
-        secureTextEntry={!visible}
-        placeholder="Қайта енгізіңіз"
-      />
-
-      <Button
-        title={visible ? "Құпиясөзді жасыру" : "Құпиясөзді көрсету"}
-        secondary
-        onPress={() => setVisible(!visible)}
-      />
-
-      <Button title="Өзгерістерді сақтау" onPress={save} />
-
-      <Info text="Бұл тек демо форма. Нақты құпиясөз серверде өзгертілмейді." />
+    <Page title="Құпиясөз баптауы" onBack={onBack}>
+      <Heading title="Қауіпсіздік"
+        subtitle="Құпиясөзді өзгерту формасы" />
+      <Field label="Қазіргі құпиясөз"
+        value={current} onChangeText={setCurrent} secureTextEntry />
+      <Field label="Жаңа құпиясөз"
+        value={next} onChangeText={setNext} secureTextEntry />
+      <Field label="Құпиясөзді қайталау"
+        value={confirm} onChangeText={setConfirm} secureTextEntry />
+      <Button title="Өзгертуді растау" onPress={change} />
+      <Info text="Нақты құпиясөзді өзгертуге аутентификация сервері керек." />
     </Page>
   );
 }

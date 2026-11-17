@@ -3,63 +3,38 @@ import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
   Page, Heading, Field, Button,
-  Card, Detail, Info, ScreenProps
-} from "../EmeraldUI";
+  Info, ScreenProps
+} from "./EmeraldUI";
 
 export default function MessageReply({
   onNavigate, onBack
 }: ScreenProps) {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [sent, setSent] = useState(false);
 
-  function send() {
-    if (!subject.trim() || message.trim().length < 5) {
-      Alert.alert("Қате", "Тақырып пен хабарламаңызды енгізіңіз.");
+  function submit() {
+    if (!subject.trim() || message.trim().length < 10) {
+      Alert.alert("Қате", "Тақырып пен кемінде 10 таңбалы хабарлама жазыңыз.");
       return;
     }
-    setSent(true);
-    Alert.alert("Хабарлама сақталды", "Демо хабарлама құрылды.");
+
+    Alert.alert(
+      "Демо жіберілді",
+      "Хабарлама серверге жіберілген жоқ.",
+      [{ text: "Түсінікті", onPress: () => onNavigate("Messages") }]
+    );
   }
 
   return (
-    <Page title="Хабарлама жазу" onBack={onBack}>
-      <Heading
-        title="Қолдау қызметі"
-        subtitle="Сұрағыңызды немесе ұсынысыңызды жазыңыз."
-      />
-
-      <Field
-        label="Тақырыбы"
-        placeholder="Хабарлама тақырыбы"
-        value={subject}
-        onChangeText={setSubject}
-      />
-
-      <Field
-        label="Хабарлама"
-        placeholder="Сұрағыңызды жазыңыз..."
-        value={message}
-        onChangeText={setMessage}
-        multiline
-      />
-
-      {sent && (
-        <Card>
-          <Detail label="Мәртебе" value="Демо сақталды" />
-          <Detail label="Тақырып" value={subject} />
-        </Card>
-      )}
-
-      <Button title="Хабарлама жіберу" onPress={send} />
-
-      <Button
-        title="Хабарламалар тізімі"
-        secondary
-        onPress={() => onNavigate("Messages")}
-      />
-
-      <Info text="Хабарлама нақты серверге жіберілмейді." />
+    <Page title="Жауап жазу" onBack={onBack}>
+      <Heading title="Қолдау қызметіне жазу"
+        subtitle="Сұрағыңызды немесе ұсынысыңызды қалдырыңыз." />
+      <Field label="Тақырып" value={subject}
+        onChangeText={setSubject} placeholder="Хабарлама тақырыбы" />
+      <Field label="Хабарлама" value={message}
+        onChangeText={setMessage} placeholder="Сұрағыңызды жазыңыз..." />
+      <Button title="Хабарламаны жіберу" onPress={submit} />
+      <Info text="Нақты қолдау орталығына жіберу үшін backend қажет." />
     </Page>
   );
 }

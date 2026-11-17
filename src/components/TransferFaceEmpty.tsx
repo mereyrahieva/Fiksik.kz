@@ -1,37 +1,35 @@
 
 import React from "react";
+import { Text } from "react-native";
 import {
-  Page, Heading, Card, Detail,
-  Button, Info, ScreenProps
-} from "../EmeraldUI";
+  Page, Heading, Card, Button,
+  Info, ScreenProps, C
+} from "./EmeraldUI";
 
 export default function TransferFaceEmpty({
   onNavigate, onBack
 }: ScreenProps) {
   return (
-    <Page title="Бет-әлпетті тану" onBack={onBack}>
-      <Heading
-        title="Бет-әлпетті тексеру"
-        subtitle="Биометриялық тексерудің үлгі интерфейсі"
-      />
+    <Page title="Бетті тану" onBack={onBack}>
+      <Heading title="Face ID"
+        subtitle="Биометриялық растау экраны" />
 
       <Card>
-        <Detail label="Тексеру тәсілі" value="Бет-әлпетті тану" />
-        <Detail label="Мәртебе" value="Дайындық" />
+        <Text style={{
+          color: C.green, fontSize: 85,
+          textAlign: "center", marginVertical: 18
+        }}>☺</Text>
+        <Text style={{
+          color: C.dark, fontSize: 16,
+          textAlign: "center", fontWeight: "700"
+        }}>Бетіңізді камера жақтауына орналастырыңыз</Text>
       </Card>
 
-      <Button
-        title="Тексеруге дайындалу"
-        onPress={() => onNavigate("TransferFaceReady")}
-      />
-
-      <Button
-        title="SMS арқылы растау"
-        secondary
-        onPress={() => onNavigate("TransferConfirmOTP")}
-      />
-
-      <Info text="Камера іске қосылмайды және бет-әлпет деректері сақталмайды." />
+      <Button title="Жалғастыру"
+        onPress={() => onNavigate("TransferFaceReady")} />
+      <Button title="Басқа әдіс" secondary
+        onPress={() => onNavigate("TransferConfirmBiometric")} />
+      <Info text="Нақты камера іске қосылмайды." />
     </Page>
   );
 }

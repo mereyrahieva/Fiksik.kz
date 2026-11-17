@@ -3,42 +3,31 @@ import React from "react";
 import {
   Page, Heading, Card, Detail,
   Menu, Info, ScreenProps
-} from "../EmeraldUI";
+} from "./EmeraldUI";
 
 export default function TransferConfirmBiometric({
   onNavigate, onBack
 }: ScreenProps) {
   return (
     <Page title="Биометриялық растау" onBack={onBack}>
-      <Heading
-        title="Қауіпсіздік тексеруі"
-        subtitle="Растау тәсілін таңдаңыз."
-      />
+      <Heading title="Өзіңізді растаңыз"
+        subtitle="Қауіпсіздік әдісін таңдаңыз." />
 
       <Card>
-        <Detail label="Қауіпсіздік" value="Демо режим" />
-        <Detail label="Операция" value="Ақша аудару" />
+        <Detail label="Қорғау түрі" value="Биометрия" />
+        <Detail label="Режим" value="Демонстрациялық" />
       </Card>
 
-      <Menu
-        icon="👆"
-        title="Саусақ ізін тексеру"
-        onPress={() => onNavigate("TransferTouchDialog")}
-      />
+      <Menu icon="👆" title="Саусақ ізі"
+        subtitle="Саусақ ізін тексеру интерфейсі"
+        onPress={() => onNavigate("TransferFingerprint")} />
+      <Menu icon="🙂" title="Бетті тану"
+        subtitle="Камера арқылы растау экраны"
+        onPress={() => onNavigate("TransferFaceEmpty")} />
+      <Menu icon="🔢" title="SMS-код"
+        onPress={() => onNavigate("TransferConfirmOTP")} />
 
-      <Menu
-        icon="🙂"
-        title="Бет-әлпетті тану"
-        onPress={() => onNavigate("TransferFaceEmpty")}
-      />
-
-      <Menu
-        icon="✉️"
-        title="SMS арқылы растау"
-        onPress={() => onNavigate("TransferConfirmOTP")}
-      />
-
-      <Info text="Биометриялық растау құрылғыға әлі қосылмаған. Бұл тек интерфейс үлгісі." />
+      <Info text="Құрылғы биометриясы әзірше нақты тексерілмейді." />
     </Page>
   );
 }

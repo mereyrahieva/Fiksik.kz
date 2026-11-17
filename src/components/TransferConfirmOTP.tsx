@@ -2,71 +2,51 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
-  Page, Heading, Field, Button,
-  Card, Detail, Info, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
+  Page, Heading, Card, Detail, Field,
+  Button, Info, ScreenProps
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 export default function TransferConfirmOTP({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
   const [code, setCode] = useState("");
-  const [completed, setCompleted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function confirm() {
-    if (completed) return;
-
+    if (loading) return;
     if (code !== "123456") {
-      Alert.alert("Қате", "Растау коды дұрыс емес.");
+      Alert.alert("Қате", "Растау коды қате.");
       return;
     }
-
-    if (!bank.completeTransfer()) {
-      Alert.alert("Қате", "Соманы немесе демо балансты тексеріңіз.");
-      return;
+    setLoading(true);
+    if (bank.completeTransfer()) {
+      onNavigate("TransferSuccess");
+    } else {
+      setLoading(false);
+      Alert.alert("Қате", "Аударым орындалмады. Балансты тексеріңіз.");
     }
-
-    setCompleted(true);
-    onNavigate("TransferSuccess");
   }
 
   return (
-    <Page title="SMS арқылы растау" onBack={onBack}>
-      <Heading
-        title="Растау кодын енгізіңіз"
-        subtitle="Операцияны аяқтау үшін кодты тексеріңіз."
-      />
-
+    <Page title="SMS растау" onBack={onBack}>
+      <Heading title="Аударымды растаңыз"
+        subtitle="Қауіпсіздік кодын енгізіңіз." />
       <Card>
-        <Detail
-          label="Аударым сомасы"
-          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`}
-        />
-        <Detail label="Растау тәсілі" value="SMS-код" />
+        <Detail label="Алушы" value={bank.transfer.recipient} />
+        <Detail label="Сома"
+          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`} />
       </Card>
-
-      <Field
-        label="Алты таңбалы код"
+      <Field label="SMS-код" placeholder="000000"
         value={code}
         onChangeText={v => setCode(v.replace(/\D/g, "").slice(0, 6))}
-        placeholder="000000"
-        keyboardType="number-pad"
-      />
-
-      <Button
-        title="Кодты қайта алу"
-        secondary
-        onPress={() => Alert.alert("Демо код", "123456")}
-      />
-
-      <Button
-        title="Аударымды растау"
-        onPress={confirm}
-        disabled={completed}
-      />
-
-      <Info text="Демо растау коды: 123456. Нақты SMS жіберілмейді." />
+        keyboardType="number-pad" />
+      <Button title="Аударымды орындау"
+        disabled={loading} onPress={confirm} />
+      <Button title="Кодты қайта алу" secondary
+        onPress={() => Alert.alert("Демо код", "123456")} />
+      <Info text="Демо код: 123456. Нақты SMS келмейді." />
     </Page>
   );
 }

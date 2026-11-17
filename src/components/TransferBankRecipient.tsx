@@ -1,52 +1,32 @@
 
-import React, { useState } from "react";
-import { Alert } from "react-native";
+import React from "react";
 import {
-  Page, Heading, Card, Detail, Check,
+  Page, Heading, Card, Detail,
   Button, Info, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 export default function TransferBankRecipient({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [accepted, setAccepted] = useState(false);
-
-  function proceed() {
-    if (!accepted) {
-      Alert.alert("Ескерту", "Мәліметтердің дұрыстығын растаңыз.");
-      return;
-    }
-    onNavigate("TransferBankConfirm");
-  }
 
   return (
-    <Page title="Алушыны тексеру" onBack={onBack}>
-      <Heading
-        title="Алушының деректері"
-        subtitle="Аударым мәліметтерін тексеріңіз."
-      />
+    <Page title="Алушыны растау" onBack={onBack}>
+      <Heading title="Алушы туралы ақпарат"
+        subtitle="Деректемелердің дұрыстығын тексеріңіз." />
 
       <Card>
         <Detail label="Алушы" value={bank.transfer.recipient} />
-        <Detail label="Шот" value={bank.transfer.card} />
-        <Detail
-          label="Сома"
-          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`}
-        />
+        <Detail label="Шот нөмірі" value={bank.transfer.card} />
+        <Detail label="Мақсат" value={bank.transfer.message} />
       </Card>
 
-      <Check
-        title="Мәліметтер дұрыс енгізілгенін растаймын"
-        value={accepted}
-        onPress={() => setAccepted(!accepted)}
-      />
+      <Button title="Аударымды растау"
+        onPress={() => onNavigate("TransferBankConfirm")} />
+      <Button title="Артқа" secondary onPress={onBack} />
 
-      <Button title="Растауға өту" onPress={proceed} />
-      <Button title="Деректерді түзету" secondary onPress={onBack} />
-
-      <Info text="Алушы деректері банк арқылы расталмайды." />
+      <Info text="Алушының шынайы банк реквизиттері тексерілген жоқ." />
     </Page>
   );
 }

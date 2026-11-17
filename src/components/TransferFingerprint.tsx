@@ -1,47 +1,39 @@
 
 import React, { useState } from "react";
+import { Text } from "react-native";
 import {
-  Page, Heading, Card, Detail,
-  Button, Info, ScreenProps
-} from "../EmeraldUI";
+  Page, Heading, Card, Detail, Button,
+  Info, ScreenProps, C
+} from "./EmeraldUI";
 
 export default function TransferFingerprint({
   onNavigate, onBack
 }: ScreenProps) {
-  const [checked, setChecked] = useState(false);
+  const [scanned, setScanned] = useState(false);
 
   return (
-    <Page title="Саусақ ізін тексеру" onBack={onBack}>
-      <Heading
-        title="Биометриялық тексеру"
-        subtitle="Саусақ ізі интерфейсінің демонстрациясы"
-      />
+    <Page title="Саусақ ізі" onBack={onBack}>
+      <Heading title="Саусақ ізін тексеру"
+        subtitle="Қауіпсіздік интерфейсінің демо нұсқасы" />
+
+      <Text style={{
+        fontSize: 110,
+        color: C.green,
+        textAlign: "center",
+        marginVertical: 30
+      }}>◎</Text>
 
       <Card>
-        <Detail label="Тексеру" value="Саусақ ізі" />
-        <Detail
-          label="Мәртебе"
-          value={checked ? "Демо тексеру аяқталды" : "Басталмаған"}
-        />
+        <Detail label="Тексеру"
+          value={scanned ? "Демо аяқталды" : "Күтілуде"} />
+        <Detail label="Қауіпсіздік" value="Расталмаған" />
       </Card>
 
-      <Button
-        title="Демо тексеруді орындау"
-        onPress={() => setChecked(true)}
-      />
-
-      <Button
-        title="SMS арқылы нақтылау"
-        onPress={() => onNavigate("TransferConfirmOTP")}
-      />
-
-      <Button
-        title="Артқа қайту"
-        secondary
-        onPress={onBack}
-      />
-
-      <Info text="Саусақ ізі нақты тексерілмейді. Аударымды демо код арқылы растауға болады." />
+      <Button title="Демо сканерлеу"
+        onPress={() => setScanned(true)} />
+      <Button title="SMS-код арқылы жалғастыру"
+        onPress={() => onNavigate("TransferConfirmOTP")} />
+      <Info text="Демо сканерлеу нақты биометриялық растау емес. Аударым SMS-код экранында аяқталады." />
     </Page>
   );
 }

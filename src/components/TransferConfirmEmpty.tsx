@@ -3,8 +3,8 @@ import React from "react";
 import {
   Page, Heading, Card, Detail, Menu,
   Info, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 export default function TransferConfirmEmpty({
   onNavigate, onBack
@@ -13,42 +13,24 @@ export default function TransferConfirmEmpty({
 
   return (
     <Page title="Аударымды растау" onBack={onBack}>
-      <Heading
-        title="Растау әдісін таңдаңыз"
-        subtitle="Аударым мәліметтерін тексеріңіз."
-      />
+      <Heading title="Қауіпсіздік тексеруі"
+        subtitle="Аударымды растау тәсілін таңдаңыз." />
 
       <Card>
-        <Detail label="Алушы" value={bank.transfer.recipient || "Көрсетілмеген"} />
-        <Detail
-          label="Аударым сомасы"
-          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`}
-        />
-        <Detail label="Комиссия" value="0 ₸" />
+        <Detail label="Алушы" value={bank.transfer.recipient} />
+        <Detail label="Сома"
+          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`} />
       </Card>
 
-      <Menu
-        icon="✉️"
-        title="SMS-код арқылы растау"
+      <Menu icon="✉️" title="SMS-код арқылы"
         subtitle="Алты таңбалы код енгізу"
-        onPress={() => onNavigate("TransferConfirmOTP")}
-      />
+        onPress={() => onNavigate("TransferConfirmOTP")} />
 
-      <Menu
-        icon="👆"
-        title="Саусақ ізі"
-        subtitle="Биометриялық демо"
-        onPress={() => onNavigate("TransferTouchDialog")}
-      />
+      <Menu icon="👆" title="Биометрия арқылы"
+        subtitle="Биометриялық растау бөлімі"
+        onPress={() => onNavigate("TransferConfirmBiometric")} />
 
-      <Menu
-        icon="🙂"
-        title="Бет-әлпетті тану"
-        subtitle="Биометриялық демо"
-        onPress={() => onNavigate("TransferFaceEmpty")}
-      />
-
-      <Info text="Нақты ақша аударылмайды. Биометриялық тексеру демонстрациялық." />
+      <Info text="Бұл жерде нақты SMS және биометриялық банк растауы қолданылмайды." />
     </Page>
   );
 }

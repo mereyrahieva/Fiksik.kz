@@ -3,53 +3,39 @@ import React, { useState } from "react";
 import {
   Page, Heading, Menu, Button,
   Info, ScreenProps
-} from "../EmeraldUI";
+} from "./EmeraldUI";
 
-const messages = [
-  { id: 1, icon: "🔐", title: "Қауіпсіздік", text: "Аккаунтты қорғау туралы ақпарат" },
-  { id: 2, icon: "💳", title: "Карталар", text: "Банк карталарын пайдалану" },
-  { id: 3, icon: "📢", title: "Жаңалықтар", text: "Қосымша қызметтері" }
+const notifications = [
+  { id: 1, title: "Қош келдіңіз!", subtitle: "Fiksik Bank демо қосымшасына қош келдіңіз." },
+  { id: 2, title: "Қауіпсіздік", subtitle: "Құпиясөзіңізді ешкімге бермеңіз." },
+  { id: 3, title: "Жаңа мүмкіндіктер", subtitle: "Аударымдар мен төлемдерді қарап көріңіз." }
 ];
 
 export default function Messages({
   onNavigate, onBack
 }: ScreenProps) {
-  const [unread, setUnread] = useState([1, 2, 3]);
-
-  function open(id: number) {
-    setUnread(old => old.filter(item => item !== id));
-    onNavigate("MessageThread");
-  }
+  const [read, setRead] = useState<number[]>([]);
 
   return (
     <Page title="Хабарламалар" onBack={onBack}>
-      <Heading
-        title="Кіріс хабарламалар"
-        subtitle={`Оқылмаған хабарламалар: ${unread.length}`}
-      />
+      <Heading title="Сіздің хабарламаларыңыз"
+        subtitle={`${notifications.length - read.length} оқылмаған хабарлама`} />
 
-      {messages.map(item => (
-        <Menu
-          key={item.id}
-          icon={item.icon}
-          title={`${item.title}${unread.includes(item.id) ? " •" : ""}`}
-          subtitle={item.text}
-          onPress={() => open(item.id)}
-        />
+      {notifications.map(item => (
+        <Menu key={item.id}
+          icon={read.includes(item.id) ? "✉️" : "🔔"}
+          title={item.title}
+          subtitle={item.subtitle}
+          onPress={() => {
+            setRead(old => [...new Set([...old, item.id])]);
+            onNavigate("MessageThread");
+          }} />
       ))}
 
-      <Button
-        title="Барлығын оқылды деп белгілеу"
+      <Button title="Барлығын оқылған деп белгілеу"
         secondary
-        onPress={() => setUnread([])}
-      />
-
-      <Button
-        title="Қолдау қызметіне жазу"
-        onPress={() => onNavigate("MessageReply")}
-      />
-
-      <Info text="Хабарламалар демонстрациялық деректерден тұрады." />
+        onPress={() => setRead(notifications.map(item => item.id))} />
+      <Info text="Хабарламалар демонстрациялық деректерден құралған." />
     </Page>
   );
 }

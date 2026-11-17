@@ -3,54 +3,35 @@ import React, { useState } from "react";
 import {
   Page, Heading, Menu, Card, Detail,
   Button, Info, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
-
-const banks = [
-  "Бірінші банк",
-  "Екінші банк",
-  "Үшінші банк"
-];
+} from "./EmeraldUI";
 
 export default function TransferBankPicker({
   onNavigate, onBack
 }: ScreenProps) {
-  const bank = useBank();
-  const [selected, setSelected] = useState(banks[0]);
-
-  function confirm() {
-    bank.setTransfer({
-      ...bank.transfer,
-      message: `Банк: ${selected}`
-    });
-    onNavigate("TransferBankFilled");
-  }
+  const [bank, setBank] = useState("Басқа банк");
 
   return (
     <Page title="Банкті таңдау" onBack={onBack}>
-      <Heading
-        title="Алушының банкі"
-        subtitle="Қажетті банкті таңдаңыз."
-      />
+      <Heading title="Алушының банкі"
+        subtitle="Аударым жасалатын банкті таңдаңыз." />
 
-      {banks.map(item => (
+      {["Halyk Bank", "Kaspi Bank", "ForteBank", "Басқа банк"].map(item => (
         <Menu
           key={item}
-          icon={selected === item ? "✅" : "🏦"}
+          icon={bank === item ? "✅" : "🏦"}
           title={item}
-          subtitle={selected === item ? "Таңдалды" : "Таңдау үшін басыңыз"}
-          onPress={() => setSelected(item)}
+          onPress={() => setBank(item)}
         />
       ))}
 
       <Card>
-        <Detail label="Таңдалған банк" value={selected} />
+        <Detail label="Таңдалған банк" value={bank} />
       </Card>
 
-      <Button title="Банкті растау" onPress={confirm} />
-      <Button title="Артқа қайту" secondary onPress={onBack} />
+      <Button title="Жалғастыру"
+        onPress={() => onNavigate("TransferBankFilled")} />
 
-      <Info text="Банк атаулары демонстрациялық." />
+      <Info text="Банк тізімі үлгі ретінде берілген. IBAN бойынша банк автоматты тексерілмейді." />
     </Page>
   );
 }

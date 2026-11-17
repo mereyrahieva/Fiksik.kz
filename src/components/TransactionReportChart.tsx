@@ -1,133 +1,82 @@
 
-import React, { useState } from "react";
-import {
-  View, Text, TouchableOpacity, StyleSheet
-} from "react-native";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 import {
   Page, Heading, Card, Detail, Button,
-  Info, ScreenProps, C
-} from "../EmeraldUI";
-
-const months = [
-  { name: "Қаңтар", income: 260000, expense: 140000 },
-  { name: "Ақпан", income: 320000, expense: 185000 },
-  { name: "Наурыз", income: 280000, expense: 165000 },
-  { name: "Сәуір", income: 350000, expense: 200000 }
-];
+  SectionTitle, ScreenProps, C
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 export default function TransactionReportChart({
   onNavigate, onBack
 }: ScreenProps) {
-  const [selected, setSelected] = useState(3);
-  const current = months[selected];
+  const bank = useBank();
+  const income = bank.transactions
+    .filter(x => x.amount > 0)
+    .reduce((a, b) => a + b.amount, 0);
+  const expense = bank.transactions
+    .filter(x => x.amount < 0)
+    .reduce((a, b) => a + Math.abs(b.amount), 0);
+  const max = Math.max(income, expense, 1);
 
   return (
-    <Page title="Қаржы есебі" onBack={onBack}>
-      <Heading
-        title="Кірістер мен шығыстар"
-        subtitle="Айлық қаржы есебінің үлгісі"
-      />
-
-      <View style={s.chart}>
-        {months.map((month, index) => (
-          <TouchableOpacity
-            key={month.name}
-            style={s.column}
-            onPress={() => setSelected(index)}
-          >
-            <View style={s.bars}>
-              <View
-                style={[
-                  s.bar,
-                  {
-                    height: month.income / 2000,
-                    backgroundColor: C.green
-                  }
-                ]}
-              />
-              <View
-                style={[
-                  s.bar,
-                  {
-                    height: month.expense / 2000,
-                    backgroundColor: "#A7F3D0"
-                  }
-                ]}
-              />
-            </View>
-
-            <Text style={[
-              s.month,
-              selected === index && { color: C.dark, fontWeight: "700" }
-            ]}>
-              {month.name.slice(0, 3)}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={s.legend}>
-        <Text style={{ color: C.green }}>● Кіріс</Text>
-        <Text style={{ color: C.dark }}>● Шығыс</Text>
-      </View>
+    <Page title="Қаржы статистикасы" onBack={onBack}>
+      <Heading title="Кірістер мен шығыстар"
+        subtitle="Операцияларыңыз бойынша демо талдау" />
 
       <Card>
-        <Detail label="Ай" value={current.name} />
-        <Detail
-          label="Кіріс"
-          value={`${current.income.toLocaleString("kk-KZ")} ₸`}
-        />
-        <Detail
-          label="Шығыс"
-          value={`${current.expense.toLocaleString("kk-KZ")} ₸`}
-        />
-        <Detail
-          label="Айырма"
-          value={`${(current.income - current.expense).toLocaleString("kk-KZ")} ₸`}
-        />
+        <Detail label="Кірістер"
+          value={`+${income.toLocaleString("kk-KZ")} ₸`} />
+        <Detail label="Шығыстар"
+          value={`−${expense.toLocaleString("kk-KZ")} ₸`} />
+        <Detail label="Операциялар саны"
+          value={`${bank.transactions.length}`} />
       </Card>
 
-      <Button
-        title="Операциялар тізімі"
-        onPress={() => onNavigate("TransactionReportList")}
-      />
+      <SectionTitle title="Қаржылық диаграмма" />
 
-      <Info text="Диаграмма үлгі деректер негізінде жасалған." />
+      <Card>
+        <Text style={s.label}>Кірістер</Text>
+        <View style={s.track}>
+          <View style={[s.income, {
+            width: `${(income / max) * 100}%`
+          }]} />
+        </View>
+        <Text style={s.amount}>{income.toLocaleString("kk-KZ")} ₸</Text>
+
+        <Text style={[s.label, { marginTop: 20 }]}>Шығыстар</Text>
+        <View style={s.track}>
+          <View style={[s.expense, {
+            width: `${(expense / max) * 100}%`
+          }]} />
+        </View>
+        <Text style={s.amount}>{expense.toLocaleString("kk-KZ")} ₸</Text>
+      </Card>
+
+      <Button title="Операциялар тізімі"
+        onPress={() => onNavigate("TransactionReportList")} />
     </Page>
   );
 }
 
 const s = StyleSheet.create({
-  chart: {
-    height: 235,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 17,
-    padding: 15,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "flex-end"
+  label: { color: C.dark, fontWeight: "800", fontSize: 14 },
+  track: {
+    height: 23,
+    backgroundColor: C.mint,
+    borderRadius: 12,
+    overflow: "hidden",
+    marginTop: 10
   },
-  column: { flex: 1, alignItems: "center" },
-  bars: {
-    height: 185,
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 5
+  income: {
+    height: 23,
+    backgroundColor: C.green,
+    borderRadius: 12
   },
-  bar: {
-    width: 18,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6
+  expense: {
+    height: 23,
+    backgroundColor: "#F59E0B",
+    borderRadius: 12
   },
-  month: {
-    color: C.muted,
-    marginTop: 10,
-    fontSize: 12
-  },
-  legend: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 25,
-    marginVertical: 20
-  }
+  amount: { color: C.gray, marginTop: 8, fontWeight: "700" }
 });

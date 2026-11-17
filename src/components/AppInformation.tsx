@@ -4,51 +4,37 @@ import { Text } from "react-native";
 import {
   Page, Heading, Card, Detail,
   Button, Info, ScreenProps, C
-} from "../EmeraldUI";
+} from "./EmeraldUI";
 
 export default function AppInformation({
   onNavigate, onBack
 }: ScreenProps) {
   return (
     <Page title="Қосымша туралы" onBack={onBack}>
-      <Heading
-        title="Fiksik Bank"
-        subtitle="Мобильді банкинг қосымшасы"
-      />
+      <Heading title="Fiksik Bank"
+        subtitle="Қаржыны басқаруға арналған мобильді қосымша" />
 
-      <Card>
-        <Detail label="Қосымша" value="Fiksik Bank" />
-        <Detail label="Нұсқа" value="1.0.0" />
-        <Detail label="Технология" value="React Native" />
-        <Detail label="Интерфейс" value="Қазақша" />
-        <Detail label="Жұмыс режимі" value="Демо" />
+      <Card dark>
+        <Text style={{
+          color: C.white, textAlign: "center",
+          fontSize: 50, fontWeight: "900"
+        }}>F</Text>
+        <Text style={{
+          color: C.light, textAlign: "center",
+          fontSize: 19, fontWeight: "800", marginTop: 8
+        }}>FIKSIK BANK</Text>
       </Card>
 
-      <Text style={{
-        color: C.text,
-        lineHeight: 24,
-        marginVertical: 20
-      }}>
-        Fiksik Bank — банк операцияларының интерфейсін
-        үйренуге арналған мобильді қосымша.
-        {"\n\n"}
-        Қосымшада ақша аудару, валютаны айырбастау,
-        карталарды қарау, хабарламалар және қаржы
-        есептері сияқты бөлімдер қарастырылған.
-      </Text>
+      <Card>
+        <Detail label="Платформа" value="React Native / Expo" />
+        <Detail label="Тіл" value="Қазақша" />
+        <Detail label="Тақырып" value="Изумруд жасыл" />
+        <Detail label="Қосымша" value="Студенттік демо жоба" />
+      </Card>
 
-      <Button
-        title="Қолдау қызметі"
-        onPress={() => onNavigate("MessageReply")}
-      />
-
-      <Button
-        title="Баптауларға оралу"
-        secondary
-        onPress={onBack}
-      />
-
-      <Info text="Fiksik Bank — оқу жобасы, нақты банк емес." />
+      <Button title="Басты бет"
+        onPress={() => onNavigate("Home")} />
+      <Info text="Бұл қосымша нақты лицензияланған банк қызметін көрсетпейді." />
     </Page>
   );
 }

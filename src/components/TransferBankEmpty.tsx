@@ -2,78 +2,67 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
-  Page, Heading, Field, Button,
-  Card, Detail, Info, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
+  Page, Heading, Field, Card, Detail,
+  Button, Info, ScreenProps
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 export default function TransferBankEmpty({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [name, setName] = useState("");
   const [iban, setIban] = useState("");
+  const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
 
   function proceed() {
     const sum = Number(amount.replace(",", "."));
-    const account = iban.replace(/\s/g, "").toUpperCase();
+    const clean = iban.replace(/\s/g, "").toUpperCase();
 
+    if (!/^KZ[A-Z0-9]{18}$/.test(clean)) {
+      Alert.alert("Қате", "20 таңбалы KZ IBAN енгізіңіз.");
+      return;
+    }
     if (!name.trim()) {
-      Alert.alert("Қате", "Алушының аты-жөнін енгізіңіз.");
+      Alert.alert("Қате", "Алушының атын енгізіңіз.");
       return;
     }
-
-    if (!/^KZ\d{18}$/.test(account)) {
-      Alert.alert("Қате", "IBAN пішімі дұрыс емес.");
-      return;
-    }
-
     if (!Number.isFinite(sum) || sum <= 0 || sum > bank.balance) {
-      Alert.alert("Қате", "Соманы және балансты тексеріңіз.");
+      Alert.alert("Қате", "Аударым сомасын тексеріңіз.");
       return;
     }
 
     bank.setTransfer({
       recipient: name,
-      card: account,
+      card: clean,
       amount: sum,
-      message: "Банк шотына аударым"
+      message: "Банк шотына демо аударым"
     });
-
     onNavigate("TransferBankPicker");
   }
 
   return (
-    <Page title="Банк шотына аудару" onBack={onBack}>
-      <Heading
-        title="Банк аударымы"
-        subtitle="Алушының деректемелерін енгізіңіз."
-      />
+    <Page title="Басқа банкке аудару" onBack={onBack}>
+      <Heading title="Банк шотына аудару"
+        subtitle="Алушының IBAN деректемесін енгізіңіз." />
 
       <Card>
-        <Detail label="Бастапқы карта" value="•••• 4589" />
-        <Detail
-          label="Баланс"
-          value={`${bank.balance.toLocaleString("kk-KZ")} ₸`}
-        />
+        <Detail label="Қолжетімді қаражат"
+          value={`${bank.balance.toLocaleString("kk-KZ")} ₸`} />
       </Card>
 
       <Field label="Алушының аты-жөні"
         value={name} onChangeText={setName}
-        placeholder="Толық аты-жөні" />
-
-      <Field label="IBAN"
+        placeholder="Алушының аты" />
+      <Field label="IBAN шот нөмірі"
         value={iban} onChangeText={setIban}
         placeholder="KZ..." />
-
-      <Field label="Аударым сомасы"
+      <Field label="Сома (₸)"
         value={amount} onChangeText={setAmount}
-        keyboardType="decimal-pad" placeholder="0" />
+        placeholder="0" keyboardType="decimal-pad" />
 
-      <Button title="Банкті таңдау" onPress={proceed} />
-
-      <Info text="IBAN тек қарапайым формат бойынша тексеріледі. Нақты банкке сұраныс жіберілмейді." />
+      <Button title="Жалғастыру" onPress={proceed} />
+      <Info text="Деректемелер тек формат бойынша тексеріледі. Банк сәйкестігі расталмайды." />
     </Page>
   );
 }

@@ -2,70 +2,47 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
-  Page, Heading, Card, Detail,
+  Page, Heading, Card, Detail, Field,
   Button, Info, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 export default function TransferBankConfirm({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [confirmed, setConfirmed] = useState(false);
+  const [code, setCode] = useState("");
+  const [done, setDone] = useState(false);
 
-  function submit() {
-    if (confirmed) return;
-
-    Alert.alert(
-      "Аударымды растау",
-      "Демо баланстан көрсетілген сома шегеріледі.",
-      [
-        { text: "Бас тарту", style: "cancel" },
-        {
-          text: "Растау",
-          onPress: () => {
-            if (!bank.completeTransfer()) {
-              Alert.alert("Қате", "Қаражат жеткіліксіз.");
-              return;
-            }
-            setConfirmed(true);
-            onNavigate("TransferSuccess");
-          }
-        }
-      ]
-    );
+  function confirm() {
+    if (done) return;
+    if (code !== "123456") {
+      Alert.alert("Қате", "SMS-код қате.");
+      return;
+    }
+    if (!bank.completeTransfer()) {
+      Alert.alert("Қате", "Қаражат жеткіліксіз.");
+      return;
+    }
+    setDone(true);
+    onNavigate("TransferSuccess");
   }
 
   return (
     <Page title="Банк аударымын растау" onBack={onBack}>
-      <Heading
-        title="Аударымды аяқтау"
-        subtitle="Соңғы мәліметтерді тексеріңіз."
-      />
-
+      <Heading title="Соңғы растау"
+        subtitle="Аударымды аяқтау үшін код енгізіңіз." />
       <Card>
         <Detail label="Алушы" value={bank.transfer.recipient} />
-        <Detail label="Банк" value={bank.transfer.message} />
-        <Detail
-          label="Сома"
-          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`}
-        />
-        <Detail label="Комиссия" value="0 ₸" />
+        <Detail label="Сома"
+          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`} />
       </Card>
-
-      <Button
-        title="Демо аударымды растау"
-        onPress={submit}
-        disabled={confirmed}
-      />
-
-      <Button
-        title="Мәліметтерді өзгерту"
-        secondary
-        onPress={onBack}
-      />
-
-      <Info text="Ақша нақты банкке аударылмайды." />
+      <Field label="Растау коды" value={code}
+        onChangeText={v => setCode(v.replace(/\D/g, "").slice(0, 6))}
+        placeholder="000000" keyboardType="number-pad" />
+      <Button title="Аударымды орындау"
+        disabled={done} onPress={confirm} />
+      <Info text="Демо код: 123456. Нақты банкаралық аударым жасалмайды." />
     </Page>
   );
 }
