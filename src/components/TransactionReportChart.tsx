@@ -1,120 +1,133 @@
 
 import React, { useState } from "react";
 import {
-  ScrollView, View, Text, TouchableOpacity,
-  StyleSheet
+  View, Text, TouchableOpacity, StyleSheet
 } from "react-native";
+import {
+  Page, Heading, Card, Detail, Button,
+  Info, ScreenProps, C
+} from "../EmeraldUI";
 
-type Props = { onBack?: () => void; onNext?: () => void };
-
-const expenses = [
-  { name: "Jan", amount: 330 },
-  { name: "Feb", amount: 470 },
-  { name: "Mar", amount: 380 },
-  { name: "Apr", amount: 620 },
-  { name: "May", amount: 510 },
-  { name: "Jun", amount: 700 }
+const months = [
+  { name: "Қаңтар", income: 260000, expense: 140000 },
+  { name: "Ақпан", income: 320000, expense: 185000 },
+  { name: "Наурыз", income: 280000, expense: 165000 },
+  { name: "Сәуір", income: 350000, expense: 200000 }
 ];
 
 export default function TransactionReportChart({
-  onBack, onNext
-}: Props) {
-  const [period, setPeriod] = useState<"Monthly" | "Yearly">("Monthly");
-  const [selected, setSelected] = useState("Jun");
-
-  const maxValue = Math.max(...expenses.map(e => e.amount));
-  const active = expenses.find(e => e.name === selected);
-  const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+  onNavigate, onBack
+}: ScreenProps) {
+  const [selected, setSelected] = useState(3);
+  const current = months[selected];
 
   return (
-    <ScrollView style={s.page} contentContainerStyle={s.body}>
-      <View style={s.header}>
-        <TouchableOpacity onPress={onBack}>
-          <Text style={s.back}>‹</Text>
-        </TouchableOpacity>
-        <Text style={s.headerTitle}>Transaction Report</Text>
-      </View>
+    <Page title="Қаржы есебі" onBack={onBack}>
+      <Heading
+        title="Кірістер мен шығыстар"
+        subtitle="Айлық қаржы есебінің үлгісі"
+      />
 
-      <View style={s.content}>
-        <Text style={s.title}>Spending Analytics</Text>
-        <Text style={s.subtitle}>Track your finances at a glance</Text>
-
-        <View style={s.tabs}>
-          {(["Monthly", "Yearly"] as const).map(item => (
-            <TouchableOpacity key={item} onPress={() => setPeriod(item)}
-              style={[s.tab, period === item && s.activeTab]}>
-              <Text style={[s.tabText, period === item && s.activeText]}>{item}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={s.totalCard}>
-          <Text style={s.totalLabel}>Total Expenses</Text>
-          <Text style={s.total}>${total.toLocaleString()}.00</Text>
-          <Text style={s.muted}>Example data • {period}</Text>
-        </View>
-
-        <Text style={s.section}>Expenses Overview</Text>
-        <View style={s.chart}>
-          {expenses.map(e => (
-            <TouchableOpacity
-              key={e.name} style={s.column}
-              onPress={() => setSelected(e.name)}
-            >
-              <View style={s.barArea}>
-                <View style={[
+      <View style={s.chart}>
+        {months.map((month, index) => (
+          <TouchableOpacity
+            key={month.name}
+            style={s.column}
+            onPress={() => setSelected(index)}
+          >
+            <View style={s.bars}>
+              <View
+                style={[
                   s.bar,
-                  { height: `${(e.amount / maxValue) * 100}%` },
-                  selected === e.name && s.activeBar
-                ]} />
-              </View>
-              <Text style={s.month}>{e.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+                  {
+                    height: month.income / 2000,
+                    backgroundColor: C.green
+                  }
+                ]}
+              />
+              <View
+                style={[
+                  s.bar,
+                  {
+                    height: month.expense / 2000,
+                    backgroundColor: "#A7F3D0"
+                  }
+                ]}
+              />
+            </View>
 
-        <View style={s.selectedInfo}>
-          <Text style={s.muted}>{selected} spending</Text>
-          <Text style={s.selectedAmount}>${active?.amount ?? 0}.00</Text>
-        </View>
-
-        <TouchableOpacity style={s.button} onPress={onNext}>
-          <Text style={s.white}>View Transactions</Text>
-        </TouchableOpacity>
-        <Text style={s.note}>Chart uses sample transaction values.</Text>
+            <Text style={[
+              s.month,
+              selected === index && { color: C.dark, fontWeight: "700" }
+            ]}>
+              {month.name.slice(0, 3)}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
-    </ScrollView>
+
+      <View style={s.legend}>
+        <Text style={{ color: C.green }}>● Кіріс</Text>
+        <Text style={{ color: C.dark }}>● Шығыс</Text>
+      </View>
+
+      <Card>
+        <Detail label="Ай" value={current.name} />
+        <Detail
+          label="Кіріс"
+          value={`${current.income.toLocaleString("kk-KZ")} ₸`}
+        />
+        <Detail
+          label="Шығыс"
+          value={`${current.expense.toLocaleString("kk-KZ")} ₸`}
+        />
+        <Detail
+          label="Айырма"
+          value={`${(current.income - current.expense).toLocaleString("kk-KZ")} ₸`}
+        />
+      </Card>
+
+      <Button
+        title="Операциялар тізімі"
+        onPress={() => onNavigate("TransactionReportList")}
+      />
+
+      <Info text="Диаграмма үлгі деректер негізінде жасалған." />
+    </Page>
   );
 }
 
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#fff" },
-  body: { paddingBottom: 50 },
-  header: { height: 95, flexDirection: "row", alignItems: "center", backgroundColor: "#3525B5", paddingHorizontal: 22 },
-  back: { color: "#fff", fontSize: 31, marginRight: 22 },
-  headerTitle: { color: "#fff", fontSize: 19, fontWeight: "bold" },
-  content: { padding: 22 },
-  title: { fontSize: 25, fontWeight: "bold", color: "#3525B5" },
-  subtitle: { color: "#888", marginTop: 9 },
-  tabs: { flexDirection: "row", backgroundColor: "#F2F0FC", padding: 5, borderRadius: 12, marginTop: 25 },
-  tab: { flex: 1, padding: 13, borderRadius: 9, alignItems: "center" },
-  activeTab: { backgroundColor: "#3525B5" },
-  tabText: { color: "#888" },
-  activeText: { color: "#fff", fontWeight: "bold" },
-  totalCard: { backgroundColor: "#2A369B", borderRadius: 17, padding: 23, marginTop: 25 },
-  totalLabel: { color: "#DADAFE" },
-  total: { fontSize: 32, fontWeight: "bold", color: "#fff", marginTop: 10 },
-  muted: { color: "#999", fontSize: 12, marginTop: 8 },
-  section: { fontSize: 18, fontWeight: "bold", marginTop: 28, marginBottom: 18 },
-  chart: { height: 215, flexDirection: "row", justifyContent: "space-around", paddingTop: 10 },
-  column: { width: "14%", alignItems: "center" },
-  barArea: { height: 175, width: "70%", justifyContent: "flex-end" },
-  bar: { backgroundColor: "#C3BDF0", borderTopLeftRadius: 7, borderTopRightRadius: 7 },
-  activeBar: { backgroundColor: "#3525B5" },
-  month: { color: "#888", fontSize: 11, marginTop: 10 },
-  selectedInfo: { backgroundColor: "#F5F3FF", padding: 19, borderRadius: 12, marginTop: 25 },
-  selectedAmount: { color: "#3525B5", fontSize: 25, fontWeight: "bold", marginTop: 7 },
-  button: { padding: 17, borderRadius: 11, backgroundColor: "#3525B5", marginTop: 28, alignItems: "center" },
-  white: { color: "#fff", fontWeight: "bold" },
-  note: { color: "#aaa", fontSize: 11, textAlign: "center", marginTop: 17 }
+  chart: {
+    height: 235,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 17,
+    padding: 15,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "flex-end"
+  },
+  column: { flex: 1, alignItems: "center" },
+  bars: {
+    height: 185,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 5
+  },
+  bar: {
+    width: 18,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6
+  },
+  month: {
+    color: C.muted,
+    marginTop: 10,
+    fontSize: 12
+  },
+  legend: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 25,
+    marginVertical: 20
+  }
 });
