@@ -1,49 +1,30 @@
-import React, { useState } from "react";
-import { Alert } from "react-native";
+import React from "react";
 import {
   Page, Heading, Menu, Card, Detail,
   Button, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 export default function WithdrawAccountModal({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [selected, setSelected] = useState("Негізгі шот");
 
   return (
     <Page title="Шотты таңдау" onBack={onBack}>
-      <Heading title="Қаражат алынатын шот"
-        subtitle="Өзіңізге қажетті шотты таңдаңыз." />
-
-      <Menu
-        icon="💳"
-        title="Негізгі шот"
+      <Heading title="Қаражат алынатын карта"
+        subtitle="Демо режимінде негізгі карта қолданылады." />
+      <Menu icon="💳" title="Негізгі карта"
         subtitle="•••• 4589"
-        onPress={() => setSelected("Негізгі шот")}
-      />
-      <Menu
-        icon="💰"
-        title="Жинақ шоты"
-        subtitle="Демо шот"
-        onPress={() => setSelected("Жинақ шоты")}
-      />
-
+        onPress={() => onNavigate("WithdrawEmpty")} />
       <Card>
-        <Detail label="Таңдалған шот" value={selected} />
-        <Detail label="Негізгі баланс"
+        <Detail label="Карта" value="•••• 4589" />
+        <Detail label="Валюта" value="KZT" />
+        <Detail label="Баланс"
           value={`${bank.balance.toLocaleString("kk-KZ")} ₸`} />
       </Card>
-
-      <Button title="Таңдау" onPress={() => {
-        if (selected !== "Негізгі шот") {
-          Alert.alert("Қолжетімсіз", "Жинақ шотынан қаражат алу әлі қосылмаған.");
-          return;
-        }
-        onNavigate("WithdrawEmpty");
-      }} />
-      <Button title="Артқа қайту" secondary onPress={onBack} />
+      <Button title="Картаны таңдау"
+        onPress={() => onNavigate("WithdrawEmpty")} />
     </Page>
   );
 }

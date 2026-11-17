@@ -1,62 +1,43 @@
 import React, { useState } from "react";
 import {
-  Page, Heading, Card, Detail, Menu,
+  Page, Heading, Menu, Card, Detail,
   Button, Info, ScreenProps
-} from "../EmeraldUI";
+} from "./EmeraldUI";
 
-const payments = [
-  { id: 1, provider: "Интернет қызметі", date: "12 қараша", amount: 12000 },
-  { id: 2, provider: "Интернет қызметі", date: "12 қазан", amount: 12000 },
-  { id: 3, provider: "Интернет қызметі", date: "12 қыркүйек", amount: 11000 }
+const sample = [
+  { id: 1, month: "Қараша", amount: 12000 },
+  { id: 2, month: "Қазан", amount: 12000 },
+  { id: 3, month: "Қыркүйек", amount: 11000 }
 ];
 
 export default function PaymentHistoryInternet({
   onNavigate, onBack
 }: ScreenProps) {
   const [selected, setSelected] = useState<number | null>(null);
-  const current = payments.find(item => item.id === selected);
+  const current = sample.find(x => x.id === selected);
 
   return (
-    <Page title="Интернет төлемдерінің тарихы" onBack={onBack}>
-      <Heading
-        title="Интернет төлемдері"
-        subtitle="Бұрынғы төлемдерді қараңыз."
-      />
-
-      {payments.map(item => (
-        <Menu
-          key={item.id}
-          icon="🌐"
-          title={item.provider}
-          subtitle={`${item.date} • ${item.amount.toLocaleString("kk-KZ")} ₸`}
-          onPress={() => setSelected(item.id)}
-        />
+    <Page title="Интернет төлемдері" onBack={onBack}>
+      <Heading title="Интернет төлемдерінің тарихы"
+        subtitle="Өткен төлемдердің демо тізімі" />
+      {sample.map(x => (
+        <Menu key={x.id} icon="🌐"
+          title={`Интернет — ${x.month}`}
+          subtitle={`${x.amount.toLocaleString("kk-KZ")} ₸`}
+          onPress={() => setSelected(x.id)} />
       ))}
-
       {current && (
         <Card>
-          <Detail label="Қызмет" value={current.provider} />
-          <Detail label="Күні" value={current.date} />
-          <Detail
-            label="Төлем сомасы"
-            value={`${current.amount.toLocaleString("kk-KZ")} ₸`}
-          />
-          <Detail label="Мәртебе" value="Демо төленді" />
+          <Detail label="Қызмет" value="Интернет" />
+          <Detail label="Ай" value={current.month} />
+          <Detail label="Сома"
+            value={`${current.amount.toLocaleString("kk-KZ")} ₸`} />
+          <Detail label="Мәртебе" value="Үлгі төлем" />
         </Card>
       )}
-
-      <Button
-        title="Интернет ақысын төлеу"
-        onPress={() => onNavigate("InternetBillEmpty")}
-      />
-
-      <Button
-        title="Төлемдерге оралу"
-        secondary
-        onPress={() => onNavigate("Bills")}
-      />
-
-      <Info text="Төлемдер тарихы үлгі мәліметтерден тұрады." />
+      <Button title="Интернет ақысын төлеу"
+        onPress={() => onNavigate("InternetBillEmpty")} />
+      <Info text="Төлемдер тарихы демонстрациялық деректерден тұрады." />
     </Page>
   );
 }

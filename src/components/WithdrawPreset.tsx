@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Alert } from "react-native";
 import {
   Page, Heading, Menu, Card, Detail,
-  Button, Info, ScreenProps
-} from "../EmeraldUI";
-import { useBank } from "../BankStore";
+  Button, ScreenProps
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
 const amounts = [5000, 10000, 20000, 50000, 100000];
 
@@ -12,45 +12,39 @@ export default function WithdrawPreset({
   onNavigate, onBack
 }: ScreenProps) {
   const bank = useBank();
-  const [selected, setSelected] = useState(10000);
+  const [amount, setAmount] = useState(10000);
 
   function proceed() {
-    if (selected > bank.balance) {
-      Alert.alert("Қате", "Баланс жеткіліксіз.");
+    if (amount > bank.balance) {
+      Alert.alert("Қате", "Қаражат жеткіліксіз.");
       return;
     }
     bank.setTransfer({
       recipient: "Қаражат алу",
       card: "•••• 4589",
-      amount: selected,
-      message: "Дайын сомамен қаражат алу"
+      amount,
+      message: "Демо қаражат алу"
     });
     onNavigate("WithdrawFilled");
   }
 
   return (
-    <Page title="Қаражат сомасы" onBack={onBack}>
-      <Heading title="Қажетті соманы таңдаңыз"
-        subtitle="Дайын сомалардың бірін таңдаңыз." />
-
-      {amounts.map(amount => (
-        <Menu
-          key={amount}
-          icon={selected === amount ? "✅" : "💵"}
-          title={`${amount.toLocaleString("kk-KZ")} ₸`}
-          onPress={() => setSelected(amount)}
-        />
+    <Page title="Сома таңдау" onBack={onBack}>
+      <Heading title="Дайын сомалар"
+        subtitle="Алғыңыз келетін соманы таңдаңыз." />
+      {amounts.map(value => (
+        <Menu key={value}
+          icon={value === amount ? "✅" : "💵"}
+          title={`${value.toLocaleString("kk-KZ")} ₸`}
+          onPress={() => setAmount(value)} />
       ))}
-
       <Card>
         <Detail label="Таңдалған сома"
-          value={`${selected.toLocaleString("kk-KZ")} ₸`} />
+          value={`${amount.toLocaleString("kk-KZ")} ₸`} />
       </Card>
-
       <Button title="Жалғастыру" onPress={proceed} />
       <Button title="Өз сомамды енгізу" secondary
         onPress={() => onNavigate("WithdrawCustom")} />
-      <Info text="Қаражат алу нақты банкоматпен байланыспаған." />
     </Page>
   );
 }

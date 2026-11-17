@@ -1,62 +1,43 @@
 import React, { useState } from "react";
 import {
-  Page, Heading, Card, Detail, Menu,
+  Page, Heading, Menu, Card, Detail,
   Button, Info, ScreenProps
-} from "../EmeraldUI";
+} from "./EmeraldUI";
 
-const payments = [
-  { id: 1, date: "15 қараша", amount: 8500, status: "Демо төленді" },
-  { id: 2, date: "15 қазан", amount: 7900, status: "Демо төленді" },
-  { id: 3, date: "15 қыркүйек", amount: 8100, status: "Демо төленді" }
+const sample = [
+  { id: 1, month: "Қараша", amount: 8500 },
+  { id: 2, month: "Қазан", amount: 7900 },
+  { id: 3, month: "Қыркүйек", amount: 8100 }
 ];
 
 export default function PaymentHistoryElectric({
   onNavigate, onBack
 }: ScreenProps) {
   const [selected, setSelected] = useState<number | null>(null);
-  const current = payments.find(item => item.id === selected);
+  const current = sample.find(x => x.id === selected);
 
   return (
-    <Page title="Электр төлемдерінің тарихы" onBack={onBack}>
-      <Heading
-        title="Электр энергиясы"
-        subtitle="Бұрынғы төлемдердің демонстрациялық тізімі"
-      />
-
-      {payments.map(item => (
-        <Menu
-          key={item.id}
-          icon="💡"
-          title={`Электр төлемі — ${item.date}`}
-          subtitle={`${item.amount.toLocaleString("kk-KZ")} ₸`}
-          onPress={() => setSelected(item.id)}
-        />
+    <Page title="Электр төлемдері" onBack={onBack}>
+      <Heading title="Электр энергиясының тарихы"
+        subtitle="Демонстрациялық төлем тізімі" />
+      {sample.map(x => (
+        <Menu key={x.id} icon="💡"
+          title={`${x.month} айы`}
+          subtitle={`${x.amount.toLocaleString("kk-KZ")} ₸`}
+          onPress={() => setSelected(x.id)} />
       ))}
-
       {current && (
         <Card>
           <Detail label="Қызмет" value="Электр энергиясы" />
-          <Detail label="Күні" value={current.date} />
-          <Detail
-            label="Сома"
-            value={`${current.amount.toLocaleString("kk-KZ")} ₸`}
-          />
-          <Detail label="Мәртебе" value={current.status} />
+          <Detail label="Ай" value={current.month} />
+          <Detail label="Сома"
+            value={`${current.amount.toLocaleString("kk-KZ")} ₸`} />
+          <Detail label="Мәртебе" value="Үлгі төлем" />
         </Card>
       )}
-
-      <Button
-        title="Жаңа төлем жасау"
-        onPress={() => onNavigate("ElectricBillEmpty")}
-      />
-
-      <Button
-        title="Төлемдер бөлімі"
-        secondary
-        onPress={() => onNavigate("Bills")}
-      />
-
-      <Info text="Тізімдегі төлемдер нақты операциялар емес." />
+      <Button title="Жаңа төлем"
+        onPress={() => onNavigate("ElectricBillEmpty")} />
+      <Info text="Тізімдегі төлемдер нақты банк операциялары емес." />
     </Page>
   );
 }
