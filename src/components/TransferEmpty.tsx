@@ -1,81 +1,82 @@
 
 import React, { useState } from "react";
+import { Text, Alert } from "react-native";
 import {
-  View, Text, TextInput, ScrollView,
-  TouchableOpacity, StyleSheet, Alert
-} from "react-native";
+  Page, Heading, Field, Button,
+  Card, Detail, Info, ScreenProps, common
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
-type Props = { onBack?: () => void; onNext?: () => void };
-
-export default function TransferEmpty({ onBack, onNext }: Props) {
+export default function TransferEmpty({
+  onNavigate, onBack
+}: ScreenProps) {
+  const bank = useBank();
   const [recipient, setRecipient] = useState("");
   const [card, setCard] = useState("");
   const [amount, setAmount] = useState("");
-  const [note, setNote] = useState("");
+  const [message, setMessage] = useState("");
 
-  const submit = () => {
-    if (!recipient.trim() || card.replace(/\s/g, "").length !== 16 || Number(amount) <= 0) {
-      Alert.alert("Invalid details", "Enter recipient, 16-digit card number and amount");
+  function proceed() {
+    const sum = Number(amount.replace(",", "."));
+
+    if (!recipient.trim()) {
+      Alert.alert("Қате", "Алушының аты-жөнін енгізіңіз.");
       return;
     }
-    onNext?.();
-  };
+    if (card.replace(/\D/g, "").length !== 16) {
+      Alert.alert("Қате", "Карта нөмірі 16 таңбадан тұруы керек.");
+      return;
+    }
+    if (!Number.isFinite(sum) || sum <= 0) {
+      Alert.alert("Қате", "Аударым сомасын дұрыс енгізіңіз.");
+      return;
+    }
+    if (sum > bank.balance) {
+      Alert.alert("Қаражат жеткіліксіз", "Баланс жеткіліксіз.");
+      return;
+    }
+
+    bank.setTransfer({ recipient, card, amount: sum, message });
+    onNavigate("TransferFilled");
+  }
 
   return (
-    <ScrollView style={s.page} contentContainerStyle={s.body}>
-      <TouchableOpacity onPress={onBack}>
-        <Text style={s.back}>‹  Transfer</Text>
-      </TouchableOpacity>
-      <Text style={s.title}>Transfer Money</Text>
-      <Text style={s.subtitle}>Send money to another account</Text>
-      <View style={s.cardBox}>
-        <Text style={s.cardLabel}>Available balance</Text>
-        <Text style={s.balance}>$ 2,500.00</Text>
-        <Text style={s.cardNumber}>•••• •••• •••• 4589</Text>
-      </View>
-      <Text style={s.heading}>Transfer Details</Text>
-      <Text style={s.label}>Recipient name</Text>
-      <TextInput style={s.input} placeholder="Full name"
-        value={recipient} onChangeText={setRecipient} />
-      <Text style={s.label}>Card number</Text>
-      <TextInput style={s.input} placeholder="0000 0000 0000 0000"
-        keyboardType="number-pad" value={card} maxLength={16}
-        onChangeText={setCard} />
-      <Text style={s.label}>Amount</Text>
-      <TextInput style={s.input} placeholder="0.00"
-        keyboardType="decimal-pad" value={amount} onChangeText={setAmount} />
-      <Text style={s.label}>Message (optional)</Text>
-      <TextInput style={s.input} placeholder="Message"
-        value={note} onChangeText={setNote} />
-      <View style={s.feeRow}>
-        <Text style={s.muted}>Transfer fee</Text>
-        <Text style={s.value}>$ 0.00</Text>
-      </View>
-      <TouchableOpacity style={s.button} onPress={submit}>
-        <Text style={s.white}>Continue</Text>
-      </TouchableOpacity>
-      <Text style={s.demo}>Demo transfer only. No real money is sent.</Text>
-    </ScrollView>
+    <Page title="Ақша аудару" onBack={onBack}>
+      <Heading title="Картаға аудару"
+        subtitle="Алушының деректерін енгізіңіз." />
+
+      <Card>
+        <Detail label="Ақша жіберілетін карта" value="•••• 4589" />
+        <Detail label="Қолжетімді баланс"
+          value={`${bank.balance.toLocaleString("kk-KZ")} ₸`} />
+      </Card>
+
+      <Button title="Сақталған алушылар" secondary
+        onPress={() => onNavigate("TransferBeneficiaryFilled")} />
+      <Button title="Банк шотына аудару" secondary
+        onPress={() => onNavigate("TransferManualEmpty")} />
+
+      <Text style={common.section}>Аударым мәліметтері</Text>
+
+      <Field label="Алушының аты-жөні" value={recipient}
+        onChangeText={setRecipient} placeholder="Аты-жөні" />
+
+      <Field label="Карта нөмірі" value={card}
+        onChangeText={setCard}
+        placeholder="0000 0000 0000 0000"
+        keyboardType="number-pad" />
+
+      <Field label="Аударым сомасы (₸)" value={amount}
+        onChangeText={setAmount}
+        placeholder="0"
+        keyboardType="decimal-pad" />
+
+      <Field label="Хабарлама" value={message}
+        onChangeText={setMessage}
+        placeholder="Хабарлама (міндетті емес)" />
+
+      <Button title="Аударымды жалғастыру" onPress={proceed} />
+      <Info text="Аударым демонстрациялық. Нақты банкке ақша жіберілмейді." />
+    </Page>
   );
 }
-
-const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#fff" },
-  body: { padding: 23, paddingBottom: 45 },
-  back: { fontSize: 19, color: "#3525B5", marginBottom: 26 },
-  title: { color: "#3525B5", fontSize: 25, fontWeight: "bold" },
-  subtitle: { color: "#888", marginTop: 8, marginBottom: 25 },
-  cardBox: { backgroundColor: "#29369B", padding: 23, borderRadius: 17, height: 160, justifyContent: "space-between" },
-  cardLabel: { color: "#DADCFD" },
-  balance: { color: "#fff", fontWeight: "bold", fontSize: 28 },
-  cardNumber: { color: "#E0E3FA", letterSpacing: 2 },
-  heading: { fontSize: 18, fontWeight: "bold", color: "#333", marginTop: 25, marginBottom: 19 },
-  label: { color: "#666", fontSize: 13, marginBottom: 8 },
-  input: { height: 51, borderWidth: 1, borderColor: "#ddd", borderRadius: 11, paddingHorizontal: 14, marginBottom: 17 },
-  feeRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
-  muted: { color: "#999" },
-  value: { color: "#3525B5", fontWeight: "bold" },
-  button: { backgroundColor: "#3525B5", padding: 17, alignItems: "center", borderRadius: 11, marginTop: 29 },
-  white: { color: "#fff", fontWeight: "bold" },
-  demo: { color: "#aaa", fontSize: 11, textAlign: "center", marginTop: 19 }
-});

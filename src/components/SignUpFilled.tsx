@@ -1,102 +1,56 @@
 
 import React, { useState } from "react";
+import { Alert } from "react-native";
 import {
-  ScrollView, Text, TextInput, TouchableOpacity,
-  View, StyleSheet, Alert
-} from "react-native";
+  Page, Heading, Field, Button,
+  Card, Detail, Info, ScreenProps
+} from "./EmeraldUI";
+import { useBank } from "./BankStore";
 
-type Props = { onNext?: () => void; onBack?: () => void };
+export default function SignUpFilled({
+  onNavigate, onBack
+}: ScreenProps) {
+  const bank = useBank();
+  const [email, setEmail] = useState("");
 
-export default function SignUpFilled({ onNext, onBack }: Props) {
-  const [name, setName] = useState("John Smith");
-  const [phone, setPhone] = useState("+7 700 123 4567");
-  const [password, setPassword] = useState("12345678");
-  const [accepted, setAccepted] = useState(true);
-  const [visible, setVisible] = useState(false);
-
-  const createAccount = () => {
-    if (!name.trim() || !phone.trim() || password.length < 6 || !accepted) {
-      Alert.alert("Error", "Check your registration details");
+  function complete() {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      Alert.alert("Қате", "Электрондық поштаны дұрыс енгізіңіз.");
       return;
     }
-    Alert.alert("Demo", "Registration form validated", [
-      { text: "Continue", onPress: onNext }
-    ]);
-  };
+    bank.setRegistered(true);
+    Alert.alert(
+      "Тіркелу аяқталды",
+      "Демо аккаунтыңыз дайын!",
+      [{ text: "Басты бетке өту", onPress: () => onNavigate("Home") }]
+    );
+  }
 
   return (
-    <ScrollView style={s.page} contentContainerStyle={s.body}>
-      <TouchableOpacity onPress={onBack}>
-        <Text style={s.back}>‹  Sign up</Text>
-      </TouchableOpacity>
-      <Text style={s.title}>Welcome to us,</Text>
-      <Text style={s.sub}>Hello there, create a new account</Text>
+    <Page title="Тіркелуді растау" onBack={onBack}>
+      <Heading
+        title="Мәліметтеріңізді тексеріңіз"
+        subtitle="Аккаунтты ашу үшін ақпаратты растаңыз."
+      />
 
-      <View style={s.hero}>
-        <Text style={s.heroText}>📱</Text>
-      </View>
+      <Card>
+        <Detail label="Аты-жөні" value={bank.name} />
+        <Detail label="Телефон нөмірі" value={bank.phone} />
+        <Detail label="Аккаунт" value="Жаңа пайдаланушы" />
+      </Card>
 
-      <Text style={s.label}>Name</Text>
-      <TextInput style={s.input} value={name} onChangeText={setName} />
+      <Field
+        label="Электрондық пошта"
+        value={email}
+        onChangeText={setEmail}
+        placeholder="Поштаңызды енгізіңіз"
+        keyboardType="email-address"
+      />
 
-      <Text style={s.label}>Phone number</Text>
-      <TextInput style={s.input} value={phone}
-        keyboardType="phone-pad" onChangeText={setPhone} />
+      <Info text="Бұл оқу жобасы. Нақты банк аккаунты ашылмайды." />
 
-      <Text style={s.label}>Password</Text>
-      <View style={s.row}>
-        <TextInput style={s.flex} value={password}
-          onChangeText={setPassword} secureTextEntry={!visible} />
-        <TouchableOpacity onPress={() => setVisible(!visible)}>
-          <Text style={s.link}>{visible ? "Hide" : "Show"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity style={s.checkboxRow}
-        onPress={() => setAccepted(!accepted)}>
-        <Text style={s.check}>{accepted ? "☑" : "□"}</Text>
-        <Text style={s.small}>I agree to the Terms and Conditions</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={s.button} onPress={createAccount}>
-        <Text style={s.white}>Sign up</Text>
-      </TouchableOpacity>
-      <Text style={s.notice}>Demo account — no real registration</Text>
-    </ScrollView>
+      <Button title="Тіркелуді аяқтау" onPress={complete} />
+      <Button title="Мәліметтерді түзету" secondary onPress={onBack} />
+    </Page>
   );
 }
-
-const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#fff" },
-  body: { padding: 24, paddingBottom: 40 },
-  back: { color: "#3525B5", fontSize: 20, marginBottom: 28 },
-  title: { fontSize: 27, color: "#3525B5", fontWeight: "bold" },
-  sub: { color: "#888", marginTop: 7, fontSize: 13 },
-  hero: {
-    height: 175, backgroundColor: "#F7F6FF",
-    justifyContent: "center", alignItems: "center",
-    borderRadius: 18, marginVertical: 22
-  },
-  heroText: { fontSize: 70 },
-  label: { fontSize: 13, color: "#555", marginBottom: 7 },
-  input: {
-    height: 50, borderWidth: 1, borderColor: "#ddd",
-    borderRadius: 10, paddingHorizontal: 14, marginBottom: 17
-  },
-  row: {
-    borderWidth: 1, borderColor: "#ddd", borderRadius: 10,
-    paddingHorizontal: 14, height: 50,
-    flexDirection: "row", alignItems: "center"
-  },
-  flex: { flex: 1 },
-  link: { color: "#3525B5", fontWeight: "bold" },
-  checkboxRow: { flexDirection: "row", alignItems: "center", marginTop: 20 },
-  check: { color: "#3525B5", fontSize: 24, marginRight: 10 },
-  small: { fontSize: 12, color: "#555" },
-  button: {
-    marginTop: 28, backgroundColor: "#3525B5",
-    padding: 17, borderRadius: 10, alignItems: "center"
-  },
-  white: { color: "#fff", fontWeight: "bold" },
-  notice: { textAlign: "center", color: "#999", marginTop: 18 }
-});

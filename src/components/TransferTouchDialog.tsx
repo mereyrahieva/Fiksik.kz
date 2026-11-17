@@ -58,7 +58,7 @@ const s = StyleSheet.create({
   summary: { padding: 23, backgroundColor: "#fff", borderRadius: 15, marginTop: 28 },
   muted: { color: "#888" },
   amount: { fontSize: 30, fontWeight: "bold", color: "#3525B5", marginVertical: 18 },
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "#00000070", justifyContent: "center", padding: 30 },
+  overlay: { ... StyleSheet.absoluteFill,, backgroundColor: "#00000070", justifyContent: "center", padding: 30 },
   dialog: { backgroundColor: "#fff", borderRadius: 22, padding: 25, alignItems: "center" },
   iconBox: { backgroundColor: "#EEEAFE", width: 110, height: 110, borderRadius: 55, justifyContent: "center", alignItems: "center" },
   icon: { fontSize: 70, color: "#3525B5" },

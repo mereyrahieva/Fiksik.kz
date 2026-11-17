@@ -1,83 +1,69 @@
 
 import React, { useState } from "react";
+import { TextInput, View, StyleSheet, Text } from "react-native";
 import {
-  View, Text, TextInput, ScrollView,
-  TouchableOpacity, StyleSheet
-} from "react-native";
+  Page, Heading, Menu, C, ScreenProps
+} from "./EmeraldUI";
 
-type Props = {
-  onBack?: () => void;
-  onBranch?: () => void;
-  onInterest?: () => void;
-  onExchange?: () => void;
-  onLanguage?: () => void;
-};
+const services = [
+  { title: "Ақша аудару", icon: "⇄", route: "TransferEmpty" },
+  { title: "Валюта айырбастау", icon: "💱", route: "ExchangeEmpty" },
+  { title: "Банк бөлімшелері", icon: "📍", route: "Branch" },
+  { title: "Пайыздық мөлшерлемелер", icon: "％", route: "InterestRate" },
+  { title: "Валюта бағамдары", icon: "📈", route: "ExchangeRate" },
+  { title: "Қосымша тілі", icon: "🌐", route: "Language" },
+  { title: "Карталар", icon: "💳", route: "Cards" },
+  { title: "Депозиттер", icon: "💰", route: "Deposits" },
+  { title: "Баптаулар", icon: "⚙️", route: "Settings" }
+];
 
 export default function Search({
-  onBack, onBranch, onInterest, onExchange, onLanguage
-}: Props) {
+  onNavigate, onBack
+}: ScreenProps) {
   const [query, setQuery] = useState("");
-  const items = [
-    { title: "Branch", icon: "📍", action: onBranch },
-    { title: "Interest Rate", icon: "％", action: onInterest },
-    { title: "Exchange Rate", icon: "💱", action: onExchange },
-    { title: "Language", icon: "🌐", action: onLanguage }
-  ];
+
+  const results = services.filter(item =>
+    item.title.toLocaleLowerCase("kk")
+      .includes(query.toLocaleLowerCase("kk"))
+  );
 
   return (
-    <View style={s.page}>
-      <View style={s.header}>
-        <TouchableOpacity onPress={onBack}>
-          <Text style={s.back}>‹</Text>
-        </TouchableOpacity>
-        <Text style={s.title}>Search</Text>
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
-        <View style={s.searchRow}>
-          <Text style={s.searchIcon}>⌕</Text>
-          <TextInput
-            style={s.input}
-            placeholder="Search services"
-            value={query} onChangeText={setQuery}
+    <Page title="Қызметтерді іздеу" onBack={onBack}>
+      <Heading title="Қандай қызмет керек?"
+        subtitle="Банк қызметін атауы бойынша іздеңіз." />
+
+      <TextInput
+        style={s.input}
+        placeholder="Қызметті іздеу..."
+        placeholderTextColor="#98ADA3"
+        value={query}
+        onChangeText={setQuery}
+      />
+
+      <View style={{ marginTop: 25 }}>
+        {results.map(item => (
+          <Menu
+            key={item.route}
+            icon={item.icon}
+            title={item.title}
+            onPress={() => onNavigate(item.route)}
           />
-          {query.length > 0 && (
-            <TouchableOpacity onPress={() => setQuery("")}>
-              <Text style={s.clear}>×</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <Text style={s.heading}>Services</Text>
-        {items.filter(item =>
-          item.title.toLowerCase().includes(query.toLowerCase())
-        ).map(item => (
-          <TouchableOpacity key={item.title}
-            style={s.item} onPress={item.action}>
-            <View style={s.iconBox}>
-              <Text style={s.icon}>{item.icon}</Text>
-            </View>
-            <Text style={s.itemText}>{item.title}</Text>
-            <Text style={s.arrow}>›</Text>
-          </TouchableOpacity>
         ))}
-      </ScrollView>
-    </View>
+
+        {results.length === 0 && (
+          <Text style={s.empty}>Қызмет табылмады.</Text>
+        )}
+      </View>
+    </Page>
   );
 }
 
 const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#fff" },
-  header: { backgroundColor: "#3525B5", height: 95, paddingHorizontal: 22, flexDirection: "row", alignItems: "center" },
-  back: { fontSize: 32, color: "#fff", marginRight: 25 },
-  title: { color: "#fff", fontWeight: "bold", fontSize: 20 },
-  body: { padding: 22 },
-  searchRow: { flexDirection: "row", height: 53, borderRadius: 12, backgroundColor: "#F4F4FA", paddingHorizontal: 13, alignItems: "center" },
-  searchIcon: { fontSize: 26, color: "#aaa" },
-  input: { flex: 1, marginLeft: 10 },
-  clear: { color: "#aaa", fontSize: 25 },
-  heading: { fontSize: 18, fontWeight: "bold", color: "#292929", marginTop: 32, marginBottom: 15 },
-  item: { flexDirection: "row", alignItems: "center", paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  iconBox: { width: 47, height: 47, borderRadius: 13, backgroundColor: "#F0EEFF", justifyContent: "center", alignItems: "center" },
-  icon: { fontSize: 24, color: "#3525B5" },
-  itemText: { flex: 1, marginLeft: 15, fontSize: 15, color: "#333" },
-  arrow: { color: "#999", fontSize: 24 }
+  input: {
+    backgroundColor: C.white,
+    height: 55, borderRadius: 14,
+    borderColor: C.border, borderWidth: 1,
+    paddingHorizontal: 16, color: C.text
+  },
+  empty: { textAlign: "center", marginTop: 30, color: C.muted }
 });
