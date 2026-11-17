@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   View,
@@ -8,8 +7,8 @@ import {
   StatusBar,
 } from "react-native";
 
-import SignIn from "./src/components/SignIn";
-import SignUpEmpty from "./src/components/SignUpEmpty";
+import SignIn from "./src/components/auth/SignIn";
+import SignUpEmpty from "./src/components/auth/SignUpEmpty";
 import SignUpFilled from "./src/components/SignUpFilled";
 import ForgotPhoneEmpty from "./src/components/ForgotPhoneEmpty";
 import ForgotPhoneFilled from "./src/components/ForgotPhoneFilled";

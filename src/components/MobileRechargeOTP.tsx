@@ -1,83 +1,58 @@
 import React, { useState } from "react";
+import { Alert } from "react-native";
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, Alert
-} from "react-native";
+  Page, Heading, Field, Card, Detail,
+  Button, Info, ScreenProps
+} from "../EmeraldUI";
+import { useBank } from "../BankStore";
 
-type Props = { onBack?: () => void; onNext?: () => void };
-
-export default function MobileRechargeOTP({ onBack, onNext }: Props) {
+export default function MobileRechargeOTP({
+  onNavigate, onBack
+}: ScreenProps) {
+  const bank = useBank();
   const [code, setCode] = useState("");
-  const demoCode = "123456";
+  const [completed, setCompleted] = useState(false);
 
-  function verify() {
-    if (code !== demoCode) {
-      Alert.alert("Incorrect Code", "Enter the demo code 123456");
+  function confirm() {
+    if (completed) return;
+
+    if (code !== "123456") {
+      Alert.alert("Қате", "Растау коды дұрыс емес.");
       return;
     }
-    onNext?.();
+    if (!bank.completeTransfer()) {
+      Alert.alert("Қате", "Қаражат жеткіліксіз.");
+      return;
+    }
+
+    setCompleted(true);
+    onNavigate("MobileRechargeSuccess");
   }
 
   return (
-    <View style={s.page}>
-      <TouchableOpacity onPress={onBack}>
-        <Text style={s.back}>‹  Verification</Text>
-      </TouchableOpacity>
+    <Page title="SMS-код" onBack={onBack}>
+      <Heading title="Төлемді растау"
+        subtitle="Алты таңбалы растау кодын енгізіңіз." />
 
-      <View style={s.hero}>
-        <Text style={s.icon}>✉️</Text>
-      </View>
+      <Card>
+        <Detail label="Телефон" value={bank.transfer.recipient} />
+        <Detail label="Сома"
+          value={`${bank.transfer.amount.toLocaleString("kk-KZ")} ₸`} />
+      </Card>
 
-      <Text style={s.title}>Verification Code</Text>
-      <Text style={s.subtitle}>
-        Enter the 6-digit verification code to confirm
-        your mobile recharge.
-      </Text>
-
-      <Text style={s.label}>OTP Code</Text>
-      <TextInput
-        style={s.input}
-        placeholder="000000"
+      <Field label="Растау коды"
         value={code}
-        onChangeText={value =>
-          setCode(value.replace(/\D/g, "").slice(0, 6))
-        }
-        keyboardType="number-pad"
-        maxLength={6}
-        textAlign="center"
-      />
+        onChangeText={v => setCode(v.replace(/\D/g, "").slice(0, 6))}
+        placeholder="000000"
+        keyboardType="number-pad" />
 
-      <TouchableOpacity
-        onPress={() => Alert.alert("Demo Code", demoCode)}
-      >
-        <Text style={s.resend}>Resend Code</Text>
-      </TouchableOpacity>
+      <Button title="Төлемді растау"
+        onPress={confirm} disabled={completed} />
+      <Button title="Кодты қайта алу"
+        secondary
+        onPress={() => Alert.alert("Демо код", "123456")} />
 
-      <View style={s.info}>
-        <Text style={s.infoText}>
-          For demonstration, use verification code 123456.
-        </Text>
-      </View>
-
-      <TouchableOpacity style={s.button} onPress={verify}>
-        <Text style={s.white}>Verify</Text>
-      </TouchableOpacity>
-    </View>
+      <Info text="Демо код: 123456. Нақты SMS жіберілмейді." />
+    </Page>
   );
 }
-
-const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#fff", padding: 24 },
-  back: { color: "#3525B5", fontSize: 19 },
-  hero: { height: 235, justifyContent: "center", alignItems: "center" },
-  icon: { fontSize: 90 },
-  title: { color: "#3525B5", fontWeight: "bold", fontSize: 26 },
-  subtitle: { color: "#888", marginTop: 12, lineHeight: 22, marginBottom: 30 },
-  label: { fontSize: 13, color: "#666", marginBottom: 9 },
-  input: { borderWidth: 1, borderColor: "#D4CEF5", height: 58, borderRadius: 12, fontSize: 25, color: "#3525B5", letterSpacing: 7 },
-  resend: { color: "#3525B5", textAlign: "right", fontWeight: "bold", marginTop: 20 },
-  info: { backgroundColor: "#F5F3FF", padding: 16, borderRadius: 12, marginTop: 30 },
-  infoText: { color: "#777", fontSize: 12, lineHeight: 20 },
-  button: { backgroundColor: "#3525B5", padding: 17, borderRadius: 11, alignItems: "center", marginTop: 28 },
-  white: { color: "#fff", fontWeight: "bold" }
-});
