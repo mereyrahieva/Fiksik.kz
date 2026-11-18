@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   StatusBar,
+  BackHandler,
+  Alert
 } from "react-native";
 
-import SignIn from "./src/components/auth/SignIn";
-import SignUpEmpty from "./src/components/auth/SignUpEmpty";
+import { BankProvider } from "./src/components/BankStore";
+
+// КІРУ ЖӘНЕ ТІРКЕЛУ
+import SignIn from "./src/components/SignIn";
+import SignUpEmpty from "./src/components/SignUpEmpty";
 import SignUpFilled from "./src/components/SignUpFilled";
 import ForgotPhoneEmpty from "./src/components/ForgotPhoneEmpty";
 import ForgotPhoneFilled from "./src/components/ForgotPhoneFilled";
@@ -16,6 +19,8 @@ import ForgotCodeEmpty from "./src/components/ForgotCodeEmpty";
 import ForgotCodeFilled from "./src/components/ForgotCodeFilled";
 import ChangePasswordForm from "./src/components/ChangePasswordForm";
 import ChangePasswordSuccess from "./src/components/ChangePasswordSuccess";
+
+// БАСТЫ БӨЛІМ
 import Home from "./src/components/Home";
 import Search from "./src/components/Search";
 import Branch from "./src/components/Branch";
@@ -25,11 +30,12 @@ import Language from "./src/components/Language";
 import ExchangeEmpty from "./src/components/ExchangeEmpty";
 import ExchangeFilled from "./src/components/ExchangeFilled";
 import ExchangeCurrencyModal from "./src/components/ExchangeCurrencyModal";
+
+// АҚША АУДАРЫМДАРЫ
 import TransferEmpty from "./src/components/TransferEmpty";
 import TransferFilled from "./src/components/TransferFilled";
 import TransferManualEmpty from "./src/components/TransferManualEmpty";
 import TransferBeneficiaryFilled from "./src/components/TransferBeneficiaryFilled";
-
 import TransferConfirmEmpty from "./src/components/TransferConfirmEmpty";
 import TransferConfirmOTP from "./src/components/TransferConfirmOTP";
 import TransferConfirmBiometric from "./src/components/TransferConfirmBiometric";
@@ -44,63 +50,80 @@ import TransferBankPicker from "./src/components/TransferBankPicker";
 import TransferBankFilled from "./src/components/TransferBankFilled";
 import TransferBankRecipient from "./src/components/TransferBankRecipient";
 import TransferBankConfirm from "./src/components/TransferBankConfirm";
+
+// ХАБАРЛАМАЛАР
 import Messages from "./src/components/Messages";
 import MessageThread from "./src/components/MessageThread";
 import MessageReply from "./src/components/MessageReply";
+
+// БАПТАУЛАР
 import Settings from "./src/components/Settings";
 import AppInformation from "./src/components/AppInformation";
 import ChangePasswordSettings from "./src/components/ChangePasswordSettings";
 import TransactionReportChart from "./src/components/TransactionReportChart";
 import TransactionReportList from "./src/components/TransactionReportList";
 
+// ШОТТАР МЕН КАРТАЛАР
+import AccountManagement from "./src/components/AccountManagement";
 import Accounts from "./src/components/Accounts";
 import Cards from "./src/components/Cards";
 import CardDetail from "./src/components/CardDetail";
+
+// ҚАРАЖАТ АЛУ
 import WithdrawEmpty from "./src/components/WithdrawEmpty";
-import WithdrawPreset from "./src/components/WithdrawPreset";
 import WithdrawAccountModal from "./src/components/WithdrawAccountModal";
+import WithdrawPreset from "./src/components/WithdrawPreset";
 import WithdrawCustom from "./src/components/WithdrawCustom";
 import WithdrawFilled from "./src/components/WithdrawFilled";
 import WithdrawSuccess from "./src/components/WithdrawSuccess";
+
+// ҰЯЛЫ БАЙЛАНЫС
 import MobileRechargeEmpty from "./src/components/MobileRechargeEmpty";
 import MobileRechargeFilled from "./src/components/MobileRechargeFilled";
 import MobileRechargeOTP from "./src/components/MobileRechargeOTP";
-import MobileRechargeTouch from "./src/components/MobileRechargeTouch";
 import MobileRechargeBiometric from "./src/components/MobileRechargeBiometric";
+import MobileRechargeTouch from "./src/components/MobileRechargeTouch";
 import MobileRechargeSuccess from "./src/components/MobileRechargeSuccess";
+
+// ТӨЛЕМДЕР
 import Bills from "./src/components/Bills";
-import PaymentHistoryElectric from "./src/components/PaymentHistoryElectric";
-import PaymentHistoryInternet from "./src/components/PaymentHistoryInternet";
-import ElectricPaymentDetail from "./src/components/ElectricPaymentDetail";
+import PaymentDetail from "./src/components/PaymentDetail";
 import InternetBillEmpty from "./src/components/InternetBillEmpty";
 import InternetBillDetails from "./src/components/InternetBillDetails";
 import InternetBillOTP from "./src/components/InternetBillOTP";
-
 import InternetBillSuccess from "./src/components/InternetBillSuccess";
-import SaveOnlineMenu from "./src/components/SaveOnlineMenu";
-import SaveOnlineEmpty from "./src/components/SaveOnlineEmpty";
-import SaveOnlineCardSelection from "./src/components/SaveOnlineCardSelection";
-import SaveOnlineDepositPicker from "./src/components/SaveOnlineDepositPicker";
-import SaveOnlineFilled from "./src/components/SaveOnlineFilled";
-import SaveOnlineSuccess from "./src/components/SaveOnlineSuccess";
-import AccountManagement from "./src/components/AccountManagement";
-import BeneficiaryDirectory from "./src/components/BeneficiaryDirectory";
-import BeneficiaryAddEmpty from "./src/components/BeneficiaryAddEmpty";
-import BeneficiaryAddFilled from "./src/components/BeneficiaryAddFilled";
-import BeneficiaryDetails from "./src/components/BeneficiaryDetails";
-import CreditCardOverview from "./src/components/CreditCardOverview";
-import CreditCardCheckout from "./src/components/CreditCardCheckout";
-import CreditCardOTP from "./src/components/CreditCardOTP";
-import CreditCardAccountModal from "./src/components/CreditCardAccountModal";
-import CreditCardSuccess from "./src/components/CreditCardSuccess";
-import PaymentDetail from "./src/components/PaymentDetail";
+import ElectricPaymentDetail from "./src/components/ElectricPaymentDetail";
 import ElectricBillEmpty from "./src/components/ElectricBillEmpty";
 import ElectricBillFilled from "./src/components/ElectricBillFilled";
 import ElectricBillDetails from "./src/components/ElectricBillDetails";
 import ElectricBillOTP from "./src/components/ElectricBillOTP";
 import ElectricBillSuccess from "./src/components/ElectricBillSuccess";
+import PaymentHistoryElectric from "./src/components/PaymentHistoryElectric";
+import PaymentHistoryInternet from "./src/components/PaymentHistoryInternet";
 
-const screens = [
+// ДЕПОЗИТТЕР — СЕНДЕГІ НАҚТЫ АТАУЛАР
+import SaveOnlineMenu from "./src/components/SaveOnlineMenu";
+import SaveOnlineEmpty from "./src/components/SaveOnlineEmpty";
+import SaveOnlineFilled from "./src/components/SaveOnlineFilled";
+import SaveOnlineCardSelection from "./src/components/SaveOnlineCardSelection";
+import SaveOnlineDepositPicker from "./src/components/SaveOnlineDepositPicker";
+import SaveOnlineSuccess from "./src/components/SaveOnlineSuccess";
+
+// АЛУШЫЛАР
+import BeneficiaryDirectory from "./src/components/BeneficiaryDirectory";
+import BeneficiaryAddEmpty from "./src/components/BeneficiaryAddEmpty";
+import BeneficiaryAddFilled from "./src/components/BeneficiaryAddFilled";
+import BeneficiaryDetails from "./src/components/BeneficiaryDetails";
+
+// НЕСИЕ КАРТАСЫ — СЕНДЕГІ НАҚТЫ АТАУЛАР
+import CreditCardOverview from "./src/components/CreditCardOverview";
+import CreditCardCheckout from "./src/components/CreditCardCheckout";
+import CreditCardAccountModal from "./src/components/CreditCardAccountModal";
+import CreditCardOTP from "./src/components/CreditCardOTP";
+import CreditCardSuccess from "./src/components/CreditCardSuccess";
+
+// БАРЛЫҚ БАР ЭКРАНДАР
+const screens = {
   SignIn,
   SignUpEmpty,
   SignUpFilled,
@@ -110,6 +133,7 @@ const screens = [
   ForgotCodeFilled,
   ChangePasswordForm,
   ChangePasswordSuccess,
+
   Home,
   Search,
   Branch,
@@ -119,11 +143,11 @@ const screens = [
   ExchangeEmpty,
   ExchangeFilled,
   ExchangeCurrencyModal,
+
   TransferEmpty,
   TransferFilled,
   TransferManualEmpty,
   TransferBeneficiaryFilled,
-
   TransferConfirmEmpty,
   TransferConfirmOTP,
   TransferConfirmBiometric,
@@ -138,151 +162,185 @@ const screens = [
   TransferBankFilled,
   TransferBankRecipient,
   TransferBankConfirm,
+
   Messages,
   MessageThread,
   MessageReply,
+
   Settings,
   AppInformation,
   ChangePasswordSettings,
   TransactionReportChart,
   TransactionReportList,
 
+  AccountManagement,
   Accounts,
   Cards,
   CardDetail,
+
   WithdrawEmpty,
-  WithdrawPreset,
   WithdrawAccountModal,
+  WithdrawPreset,
   WithdrawCustom,
   WithdrawFilled,
   WithdrawSuccess,
+
   MobileRechargeEmpty,
   MobileRechargeFilled,
   MobileRechargeOTP,
-  MobileRechargeTouch,
   MobileRechargeBiometric,
+  MobileRechargeTouch,
   MobileRechargeSuccess,
+
   Bills,
-  PaymentHistoryElectric,
-  PaymentHistoryInternet,
-  ElectricPaymentDetail,
+  PaymentDetail,
   InternetBillEmpty,
   InternetBillDetails,
   InternetBillOTP,
-
   InternetBillSuccess,
-  SaveOnlineMenu,
-  SaveOnlineEmpty,
-  SaveOnlineCardSelection,
-  SaveOnlineDepositPicker,
-  SaveOnlineFilled,
-  SaveOnlineSuccess,
-  AccountManagement,
-  BeneficiaryDirectory,
-  BeneficiaryAddEmpty,
-  BeneficiaryAddFilled,
-  BeneficiaryDetails,
-  CreditCardOverview,
-  CreditCardCheckout,
-  CreditCardOTP,
-  CreditCardAccountModal,
-  CreditCardSuccess,
-  PaymentDetail,
+  ElectricPaymentDetail,
   ElectricBillEmpty,
   ElectricBillFilled,
   ElectricBillDetails,
   ElectricBillOTP,
   ElectricBillSuccess,
-] as const;
+  PaymentHistoryElectric,
+  PaymentHistoryInternet,
 
-export default function App() {
-  const [history, setHistory] = useState<number[]>([0]);
+  SaveOnlineMenu,
+  SaveOnlineEmpty,
+  SaveOnlineFilled,
+  SaveOnlineCardSelection,
+  SaveOnlineDepositPicker,
+  SaveOnlineSuccess,
 
-  const currentIndex = history[history.length - 1];
-  const CurrentScreen = screens[currentIndex];
+  BeneficiaryDirectory,
+  BeneficiaryAddEmpty,
+  BeneficiaryAddFilled,
+  BeneficiaryDetails,
 
-  const goTo = (index: number) => {
-    if (index < 0 || index >= screens.length) return;
-    setHistory(previous => [...previous, index]);
-  };
+  CreditCardOverview,
+  CreditCardCheckout,
+  CreditCardAccountModal,
+  CreditCardOTP,
+  CreditCardSuccess
+};
 
-  const next = () => {
-    goTo((currentIndex + 1) % screens.length);
-  };
+type ScreenName = keyof typeof screens;
 
-  const back = () => {
+// Бұрынғы кодтардағы атауларды сәйкестендіру
+const aliases: Record<string, ScreenName> = {
+  Main: "Home",
+  Dashboard: "Home",
+  Login: "SignIn",
+  Register: "SignUpEmpty",
+
+  MyCards: "Cards",
+  MyAccounts: "Accounts",
+  Transfers: "TransferEmpty",
+  Payments: "Bills",
+
+  Deposits: "SaveOnlineMenu",
+  Deposit: "SaveOnlineMenu",
+  SaveOnline: "SaveOnlineMenu",
+
+  SaveOnlineAccountModal: "SaveOnlineCardSelection",
+  SaveOnlineConfirm: "SaveOnlineDepositPicker",
+
+  CreditCard: "CreditCardOverview",
+  CreditCardDetails: "CreditCardOverview",
+
+  Notifications: "Messages",
+  Profile: "Settings",
+
+  MobileRecharge: "MobileRechargeEmpty",
+  MobileTopUp: "MobileRechargeEmpty",
+
+  TransactionHistory: "TransactionReportList"
+};
+
+type NavigationProps = {
+  onNavigate: (screen: string) => void;
+  onBack: () => void;
+};
+
+function BankNavigation() {
+  const [history, setHistory] = useState<ScreenName[]>([
+    "SignIn"
+  ]);
+
+  const currentName = history[history.length - 1];
+
+  function navigate(screen: string) {
+    const destination = aliases[screen] ?? screen;
+
+    if (!(destination in screens)) {
+      Alert.alert(
+        "Экран табылмады",
+        `${screen} бөлімі табылмады.`
+      );
+      return;
+    }
+
+    const target = destination as ScreenName;
+
+    if (target === "Home" || target === "SignIn") {
+      setHistory([target]);
+      return;
+    }
+
+    if (target === currentName) {
+      return;
+    }
+
+    setHistory(previous => [...previous, target]);
+  }
+
+  function goBack() {
     setHistory(previous =>
       previous.length > 1
         ? previous.slice(0, -1)
         : previous
     );
-  };
+  }
 
-  const home = () => {
-    setHistory([9]);
-  };
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (history.length > 1) {
+          goBack();
+          return true;
+        }
+        return false;
+      }
+    );
+
+    return () => subscription.remove();
+  }, [history.length]);
+
+  const CurrentScreen = screens[currentName] as
+    React.ComponentType<NavigationProps>;
 
   return (
-    <View style={styles.container}>
+    <View style={{
+      flex: 1,
+      backgroundColor: "#F4FAF7"
+    }}>
       <StatusBar barStyle="dark-content" />
 
       <CurrentScreen
-        onNext={next}
-        onBack={back}
-        onHome={home}
+        onNavigate={navigate}
+        onBack={goBack}
       />
-
-      <View style={styles.navigation}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={back}
-        >
-          <Text style={styles.navText}>‹ Back</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.counter}>
-          {currentIndex + 1} / {screens.length}
-        </Text>
-
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={next}
-        >
-          <Text style={styles.navText}>Next ›</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  navigation: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#EEEEEE",
-  },
-  navButton: {
-    backgroundColor: "#3525B5",
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderRadius: 10,
-  },
-  navText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
-  counter: {
-    color: "#3525B5",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-});
+export default function App() {
+  return (
+    <BankProvider>
+      <BankNavigation />
+    </BankProvider>
+  );
+}
